@@ -1,0 +1,29 @@
+{
+  "model": "qwen/qwen3-embedding-8b",
+  "dim": 4096,
+  "count": 360,
+  "chunk_ids_sha1": "16a149b0792d",
+  "source_hashes": {
+    "dogovor-arendy-a-08-2024-severnyy-sklad-824866": "dogovor-arendy-a-08-2024-severnyy-sklad-824866::раздел 7#18",
+    "dogovor-postavki-p-17-2024-alfa-treyd-e57e34": "dogovor-postavki-p-17-2024-alfa-treyd-e57e34::раздел 10#24",
+    "dogovor-postavki-pt-05-2023-alfa-treyding-df9083": "dogovor-postavki-pt-05-2023-alfa-treyding-df9083::раздел 9#16",
+    "dop-soglashenie-1-k-dogovoru-p-17-2024-4532b6": "dop-soglashenie-1-k-dogovoru-p-17-2024-4532b6::фрагмент 2#1",
+    "pismo-komplaens-sluzhby-k-12-ot-15-04-2025-a3564d": "pismo-komplaens-sluzhby-k-12-ot-15-04-2025-a3564d::фрагмент 2#1",
+    "reglament-soglasovaniya-dogovorov-red-2023-utrat-ac1cc7": "reglament-soglasovaniya-dogovorov-red-2023-utrat-ac1cc7::п. 4.1#10",
+    "reglament-soglasovaniya-dogovorov-red-2025-2c48c3": "reglament-soglasovaniya-dogovorov-red-2025-2c48c3::п. 5.4#16",
+    "sluzhebnaya-zapiska-ob-arkhive-dogovorov-9cb06b": "sluzhebnaya-zapiska-ob-arkhive-dogovorov-9cb06b::текст#0",
+    "152fz-st9-deystvuyuschaya-1c5f5e": "152fz-st9-deystvuyuschaya-1c5f5e::ч. 9#10",
+    "koap-st13-11-deystvuyuschaya-6ddcc6": "koap-st13-11-deystvuyuschaya-6ddcc6::прим. 5#26",
+    "mrot-st1-deystvuyuschaya-8275d3": "mrot-st1-deystvuyuschaya-8275d3::фрагмент 2#1",
+    "nk-st112-deystvuyuschaya-23a2b8": "nk-st112-deystvuyuschaya-23a2b8::ч. 4#3",
+    "nk-st114-deystvuyuschaya-7a1255": "nk-st114-deystvuyuschaya-7a1255::ч. 5#4",
+    "nk-st145-deystvuyuschaya-c776a3": "nk-st145-deystvuyuschaya-c776a3::ч. 8 (продолжение 2)#21",
+    "nk-st164-deystvuyuschaya-9376a1": "nk-st164-deystvuyuschaya-9376a1::ч. 10#73",
+    "nk-st224-deystvuyuschaya-9a90ff": "nk-st224-deystvuyuschaya-9a90ff::ч. 6#13",
+    "nk-st284-deystvuyuschaya-dc4b85": "nk-st284-deystvuyuschaya-dc4b85::ч. 8#85",
+    "tk-st152-deystvuyuschaya-03afe5": "tk-st152-deystvuyuschaya-03afe5::фрагмент 3#2",
+    "tk-st59-deystvuyuschaya-11578a": "tk-st59-deystvuyuschaya-11578a::фрагмент 6#5",
+    "tk-st70-deystvuyuschaya-d05c8c": "tk-st70-deystvuyuschaya-d05c8c::фрагмент 3#2",
+    "tk-st99-deystvuyuschaya-670d24": "tk-st99-deystvuyuschaya-670d24::фрагмент 9#8"
+  }
+}
