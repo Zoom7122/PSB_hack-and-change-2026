@@ -1,0 +1,15 @@
+# секреты и ключи — никогда в git
+.env
+.env.*
+!.env.example
+
+# сгенерированное: собирается одной командой scripts/prepare_chunks.py
+artifacts/
+*.jsonl
+!tests/fixtures/*.json
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.idea/
+.DS_Store

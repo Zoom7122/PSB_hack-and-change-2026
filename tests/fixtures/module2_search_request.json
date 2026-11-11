@@ -1,0 +1,18 @@
+{
+  "request_id": "req-fix-001",
+  "status": "ready",
+  "message": null,
+  "search_request": {
+    "standalone_query": "Можно ли расторгнуть договор без предварительного уведомления?",
+    "search_queries": [
+      "условия расторжения договора",
+      "срок уведомления"
+    ],
+    "filters": {
+      "document_id": null,
+      "document_number": null,
+      "document_type": null,
+      "event_date": null
+    }
+  }
+}
