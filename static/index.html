@@ -1,0 +1,2749 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>ПСБ — Юридический ассистент</title>
+
+    <style>
+        :root {
+            --psb-blue: #082b82;
+            --psb-blue-dark: #061b55;
+            --psb-blue-light: #e9effd;
+            --psb-orange: #ff6534;
+            --psb-orange-dark: #ed4e1f;
+
+            --background: #f3f5f9;
+            --surface: #ffffff;
+            --surface-secondary: #f7f8fb;
+            --border: #e1e5ee;
+
+            --text: #10172a;
+            --text-secondary: #667085;
+            --text-light: #98a2b3;
+
+            --success: #079455;
+            --success-background: #ecfdf3;
+
+            --warning: #dc6803;
+            --warning-background: #fff6ed;
+
+            --danger: #d92d20;
+            --danger-background: #fef3f2;
+
+            --shadow:
+                0 1px 2px rgba(16, 24, 40, 0.04),
+                0 8px 24px rgba(16, 24, 40, 0.06);
+
+            --header-height: 72px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            overflow: hidden;
+            color: var(--text);
+            background: var(--background);
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Arial,
+                sans-serif;
+        }
+
+        button,
+        textarea,
+        input {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+        }
+
+        .app {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Шапка */
+
+        .header {
+            z-index: 30;
+            height: var(--header-height);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            padding: 0 24px;
+            color: white;
+            background:
+                linear-gradient(
+                    100deg,
+                    var(--psb-blue-dark) 0%,
+                    var(--psb-blue) 70%,
+                    #153d9a 100%
+                );
+            border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            min-width: 0;
+            gap: 13px;
+        }
+
+        .brand-mark {
+            position: relative;
+            width: 38px;
+            height: 38px;
+            flex-shrink: 0;
+        }
+
+        .brand-mark::before,
+        .brand-mark::after {
+            position: absolute;
+            content: "";
+            transform: skewY(-35deg);
+        }
+
+        .brand-mark::before {
+            left: 3px;
+            top: 4px;
+            width: 17px;
+            height: 30px;
+            background: #9c86ff;
+        }
+
+        .brand-mark::after {
+            right: 3px;
+            top: 4px;
+            width: 17px;
+            height: 30px;
+            background: var(--psb-orange);
+        }
+
+        .brand-name {
+            font-size: 25px;
+            line-height: 1;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+        }
+
+        .brand-description {
+            margin-top: 4px;
+            overflow: hidden;
+            color: #c7d4f4;
+            font-size: 11px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .model-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            color: #d7e1fa;
+            background: rgba(0, 0, 0, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        .online-indicator {
+            width: 8px;
+            height: 8px;
+            flex-shrink: 0;
+            background: #32d583;
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px rgba(50, 213, 131, 0.13);
+        }
+
+        .header-button {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            min-height: 38px;
+            padding: 0 13px;
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.17);
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .header-button:hover {
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        .source-counter {
+            min-width: 20px;
+            padding: 2px 6px;
+            color: var(--psb-blue);
+            background: white;
+            border-radius: 20px;
+            font-size: 10px;
+            text-align: center;
+        }
+
+        /* Общая сетка */
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 280px minmax(0, 1fr) 370px;
+            min-height: 0;
+            flex: 1;
+        }
+
+        .workspace.evidence-closed {
+            grid-template-columns: 280px minmax(0, 1fr);
+        }
+
+        .workspace.evidence-closed .evidence-panel {
+            display: none;
+        }
+
+        /* Левая панель */
+
+        .sidebar {
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 18px;
+            overflow-y: auto;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+        }
+
+        .new-chat-button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            padding: 12px 14px;
+            color: white;
+            background: var(--psb-blue);
+            border: 0;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            transition: 0.2s;
+        }
+
+        .new-chat-button:hover {
+            background: var(--psb-blue-dark);
+            transform: translateY(-1px);
+        }
+
+        .plus-icon {
+            font-size: 20px;
+            line-height: 1;
+            font-weight: 400;
+        }
+
+        .sidebar-title {
+            margin: 24px 0 10px;
+            color: var(--text-light);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .example-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .example-button {
+            width: 100%;
+            padding: 12px;
+            color: var(--text);
+            background: var(--surface-secondary);
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            text-align: left;
+            transition: 0.18s;
+        }
+
+        .example-button:hover {
+            background: var(--psb-blue-light);
+            border-color: #b8c8ef;
+            transform: translateX(2px);
+        }
+
+        .example-name {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 5px;
+            color: var(--psb-blue);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .example-text {
+            display: -webkit-box;
+            overflow: hidden;
+            color: var(--text-secondary);
+            font-size: 11px;
+            line-height: 1.45;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+        }
+
+        .knowledge-card {
+            margin-top: auto;
+            padding: 14px;
+            background:
+                linear-gradient(
+                    140deg,
+                    var(--psb-blue-dark),
+                    var(--psb-blue)
+                );
+            border-radius: 14px;
+            color: white;
+        }
+
+        .knowledge-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 9px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .knowledge-description {
+            margin: 0;
+            color: #ced9f5;
+            font-size: 11px;
+            line-height: 1.55;
+        }
+
+        .knowledge-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 13px;
+        }
+
+        .knowledge-stat {
+            padding: 9px;
+            background: rgba(255, 255, 255, 0.09);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 9px;
+        }
+
+        .knowledge-stat strong {
+            display: block;
+            font-size: 15px;
+        }
+
+        .knowledge-stat span {
+            color: #cbd6f3;
+            font-size: 9px;
+        }
+
+        /* Центральная часть */
+
+        .chat {
+            min-width: 0;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            background:
+                radial-gradient(
+                    circle at 50% 20%,
+                    rgba(8, 43, 130, 0.04),
+                    transparent 35%
+                ),
+                var(--background);
+        }
+
+        .chat-toolbar {
+            min-height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 10px 22px;
+            background: rgba(255, 255, 255, 0.85);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(8px);
+        }
+
+        .chat-title {
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 750;
+        }
+
+        .chat-subtitle {
+            margin-top: 2px;
+            color: var(--text-secondary);
+            font-size: 10px;
+        }
+
+        .strict-mode {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 6px 9px;
+            color: var(--success);
+            background: var(--success-background);
+            border: 1px solid #abefc6;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .messages {
+            min-height: 0;
+            flex: 1;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        .messages-inner {
+            width: min(850px, 100%);
+            min-height: 100%;
+            margin: 0 auto;
+            padding: 26px 22px 30px;
+        }
+
+        /* Приветственный блок */
+
+        .welcome {
+            max-width: 680px;
+            margin: 6vh auto 0;
+            text-align: center;
+        }
+
+        .welcome-icon {
+            width: 68px;
+            height: 68px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 18px;
+            color: white;
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--psb-blue-dark),
+                    var(--psb-blue)
+                );
+            border-radius: 20px;
+            box-shadow: 0 14px 34px rgba(8, 43, 130, 0.22);
+            font-size: 31px;
+        }
+
+        .welcome h1 {
+            margin: 0;
+            color: var(--psb-blue-dark);
+            font-size: clamp(25px, 3vw, 36px);
+            letter-spacing: -0.03em;
+        }
+
+        .welcome-description {
+            max-width: 590px;
+            margin: 13px auto 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.65;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 11px;
+            margin-top: 28px;
+            text-align: left;
+        }
+
+        .feature-card {
+            padding: 15px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            box-shadow: var(--shadow);
+        }
+
+        .feature-number {
+            width: 27px;
+            height: 27px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            color: white;
+            background: var(--psb-orange);
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .feature-title {
+            margin-bottom: 5px;
+            color: var(--psb-blue-dark);
+            font-size: 12px;
+            font-weight: 750;
+        }
+
+        .feature-text {
+            color: var(--text-secondary);
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+        .welcome-examples {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 22px;
+        }
+
+        .welcome-example-button {
+            padding: 8px 11px;
+            color: var(--psb-blue);
+            background: white;
+            border: 1px solid #ccd7ef;
+            border-radius: 9px;
+            font-size: 10px;
+            font-weight: 650;
+            transition: 0.18s;
+        }
+
+        .welcome-example-button:hover {
+            color: white;
+            background: var(--psb-blue);
+            border-color: var(--psb-blue);
+        }
+
+        /* Сообщения */
+
+        .message {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 22px;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 34px;
+            height: 34px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            background: var(--psb-blue);
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .message.user .message-avatar {
+            background: #344054;
+        }
+
+        .message-body {
+            max-width: min(720px, calc(100% - 46px));
+        }
+
+        .message.user .message-body {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .message-name {
+            margin: 0 0 5px 2px;
+            color: var(--text-secondary);
+            font-size: 10px;
+            font-weight: 650;
+        }
+
+        .message-bubble {
+            padding: 14px 16px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 4px 16px 16px 16px;
+            box-shadow: var(--shadow);
+            font-size: 13px;
+            line-height: 1.65;
+        }
+
+        .message.user .message-bubble {
+            color: white;
+            background: var(--psb-blue);
+            border-color: var(--psb-blue);
+            border-radius: 16px 4px 16px 16px;
+            box-shadow: none;
+            white-space: pre-wrap;
+        }
+
+        .answer-status {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-bottom: 11px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 7px;
+            border-radius: 7px;
+            font-size: 9px;
+            font-weight: 750;
+        }
+
+        .status-badge.success {
+            color: var(--success);
+            background: var(--success-background);
+            border: 1px solid #abefc6;
+        }
+
+        .status-badge.partial,
+        .status-badge.clarification {
+            color: var(--warning);
+            background: var(--warning-background);
+            border: 1px solid #fedf89;
+        }
+
+        .status-badge.refusal,
+        .status-badge.error {
+            color: var(--danger);
+            background: var(--danger-background);
+            border: 1px solid #fecdca;
+        }
+
+        .latency {
+            color: var(--text-light);
+            font-size: 9px;
+        }
+
+        .answer-content p {
+            margin: 0 0 10px;
+        }
+
+        .answer-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .answer-content h1,
+        .answer-content h2,
+        .answer-content h3 {
+            margin: 14px 0 7px;
+            color: var(--psb-blue-dark);
+        }
+
+        .answer-content h3 {
+            font-size: 14px;
+        }
+
+        .answer-content ul,
+        .answer-content ol {
+            margin: 8px 0 12px;
+            padding-left: 23px;
+        }
+
+        .answer-content li {
+            margin-bottom: 5px;
+        }
+
+        .answer-content strong {
+            color: var(--psb-blue-dark);
+        }
+
+        .inline-citation {
+            display: inline-flex;
+            align-items: center;
+            margin: 0 2px;
+            padding: 1px 5px;
+            color: var(--psb-blue);
+            background: var(--psb-blue-light);
+            border: 1px solid #c4d1ef;
+            border-radius: 5px;
+            font-size: 10px;
+            font-weight: 800;
+            vertical-align: 1px;
+        }
+
+        .inline-citation:hover {
+            color: white;
+            background: var(--psb-blue);
+        }
+
+        .message-sources {
+            margin-top: 14px;
+            padding-top: 11px;
+            border-top: 1px solid var(--border);
+        }
+
+        .message-sources-title {
+            margin-bottom: 7px;
+            color: var(--text-light);
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .source-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .source-button {
+            max-width: 270px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 8px;
+            color: var(--psb-blue);
+            background: var(--psb-blue-light);
+            border: 1px solid #c7d4ef;
+            border-radius: 7px;
+            font-size: 9px;
+            font-weight: 650;
+            transition: 0.16s;
+        }
+
+        .source-button span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .source-button:hover {
+            background: #dce6fa;
+            transform: translateY(-1px);
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 7px;
+        }
+
+        .small-action {
+            padding: 4px 7px;
+            color: var(--text-secondary);
+            background: transparent;
+            border: 0;
+            border-radius: 6px;
+            font-size: 9px;
+        }
+
+        .small-action:hover {
+            color: var(--psb-blue);
+            background: var(--psb-blue-light);
+        }
+
+        /* Загрузка */
+
+        .loading-card {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 13px 15px;
+            color: var(--text-secondary);
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 4px 16px 16px 16px;
+            box-shadow: var(--shadow);
+            font-size: 11px;
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .loading-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--psb-orange);
+            border-radius: 50%;
+            animation: loading 1s infinite alternate;
+        }
+
+        .loading-dot:nth-child(2) {
+            animation-delay: 0.18s;
+        }
+
+        .loading-dot:nth-child(3) {
+            animation-delay: 0.36s;
+        }
+
+        @keyframes loading {
+            from {
+                opacity: 0.25;
+                transform: translateY(1px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(-3px);
+            }
+        }
+
+        /* Поле ввода */
+
+        .composer-area {
+            padding: 14px 20px 12px;
+            background: white;
+            border-top: 1px solid var(--border);
+        }
+
+        .composer {
+            width: min(850px, 100%);
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            margin: 0 auto;
+            padding: 7px 7px 7px 14px;
+            background: var(--surface-secondary);
+            border: 1px solid #cfd5df;
+            border-radius: 14px;
+            transition: 0.18s;
+        }
+
+        .composer:focus-within {
+            background: white;
+            border-color: var(--psb-blue);
+            box-shadow: 0 0 0 3px rgba(8, 43, 130, 0.09);
+        }
+
+        .composer textarea {
+            min-height: 42px;
+            max-height: 140px;
+            flex: 1;
+            padding: 10px 0 7px;
+            overflow-y: auto;
+            color: var(--text);
+            background: transparent;
+            border: 0;
+            outline: 0;
+            resize: none;
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .composer textarea::placeholder {
+            color: var(--text-light);
+        }
+
+        .send-button {
+            height: 42px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 0 17px;
+            color: white;
+            background: var(--psb-orange);
+            border: 0;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 750;
+            transition: 0.18s;
+        }
+
+        .send-button:hover:not(:disabled) {
+            background: var(--psb-orange-dark);
+            transform: translateY(-1px);
+        }
+
+        .send-button:disabled {
+            opacity: 0.45;
+        }
+
+        .composer-note {
+            width: min(850px, 100%);
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin: 7px auto 0;
+            color: var(--text-light);
+            font-size: 9px;
+        }
+
+        /* Правая панель */
+
+        .evidence-panel {
+            min-width: 0;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-left: 1px solid var(--border);
+        }
+
+        .evidence-header {
+            min-height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            color: white;
+            background: var(--psb-blue-dark);
+        }
+
+        .evidence-header-title {
+            font-size: 12px;
+            font-weight: 750;
+        }
+
+        .evidence-header-subtitle {
+            margin-top: 2px;
+            color: #aebee8;
+            font-size: 9px;
+        }
+
+        .close-evidence {
+            width: 29px;
+            height: 29px;
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            border: 0;
+            border-radius: 8px;
+            font-size: 17px;
+        }
+
+        .evidence-content {
+            min-height: 0;
+            flex: 1;
+            padding: 14px;
+            overflow-y: auto;
+        }
+
+        .empty-evidence {
+            padding: 34px 18px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .empty-evidence-icon {
+            width: 52px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 13px;
+            color: var(--psb-blue);
+            background: var(--psb-blue-light);
+            border-radius: 15px;
+            font-size: 22px;
+        }
+
+        .empty-evidence strong {
+            display: block;
+            margin-bottom: 7px;
+            color: var(--psb-blue-dark);
+            font-size: 12px;
+        }
+
+        .empty-evidence p {
+            margin: 0;
+            font-size: 10px;
+            line-height: 1.55;
+        }
+
+        .section-label {
+            margin: 3px 0 8px;
+            color: var(--text-light);
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+        }
+
+        .selected-source {
+            margin-bottom: 15px;
+            padding: 13px;
+            background: #fffaf5;
+            border: 1px solid #fed7aa;
+            border-radius: 12px;
+        }
+
+        .selected-source-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .selected-source-number {
+            color: var(--psb-orange-dark);
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .source-active {
+            color: var(--success);
+            font-size: 8px;
+            font-weight: 750;
+        }
+
+        .selected-source-title {
+            color: var(--psb-blue-dark);
+            font-size: 11px;
+            font-weight: 750;
+            line-height: 1.45;
+        }
+
+        .selected-source-section {
+            margin-top: 5px;
+            color: var(--text-secondary);
+            font-size: 9px;
+        }
+
+        .selected-source-quote {
+            margin-top: 10px;
+            padding: 10px;
+            color: #344054;
+            background: white;
+            border: 1px solid #fed7aa;
+            border-radius: 9px;
+            font-size: 10px;
+            line-height: 1.55;
+        }
+
+        .source-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .source-meta-item {
+            padding: 7px;
+            background: rgba(255, 255, 255, 0.72);
+            border: 1px solid #ffe5ce;
+            border-radius: 7px;
+        }
+
+        .source-meta-item span {
+            display: block;
+            color: var(--text-light);
+            font-size: 7px;
+            text-transform: uppercase;
+        }
+
+        .source-meta-item strong {
+            display: block;
+            margin-top: 2px;
+            color: var(--text);
+            font-size: 9px;
+        }
+
+        .expand-source-button {
+            width: 100%;
+            margin-top: 9px;
+            padding: 8px;
+            color: var(--psb-blue);
+            background: white;
+            border: 1px solid #ccd7ef;
+            border-radius: 8px;
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        .expand-source-button:hover {
+            background: var(--psb-blue-light);
+        }
+
+        .sources-list {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .source-list-item {
+            width: 100%;
+            padding: 10px;
+            color: inherit;
+            background: var(--surface-secondary);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            text-align: left;
+            transition: 0.16s;
+        }
+
+        .source-list-item:hover,
+        .source-list-item.active {
+            background: var(--psb-blue-light);
+            border-color: #b8c8ef;
+        }
+
+        .source-list-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .source-list-name {
+            overflow: hidden;
+            color: var(--psb-blue-dark);
+            font-size: 9px;
+            font-weight: 750;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .source-list-score {
+            flex-shrink: 0;
+            color: var(--text-secondary);
+            font-size: 8px;
+        }
+
+        .source-list-text {
+            display: -webkit-box;
+            margin-top: 5px;
+            overflow: hidden;
+            color: var(--text-secondary);
+            font-size: 9px;
+            line-height: 1.4;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+        }
+
+        .pipeline {
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        .pipeline-list {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .pipeline-step {
+            display: grid;
+            grid-template-columns: 22px 1fr auto;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: var(--surface-secondary);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+        }
+
+        .pipeline-number {
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            background: var(--psb-blue);
+            border-radius: 7px;
+            font-size: 8px;
+            font-weight: 800;
+        }
+
+        .pipeline-name {
+            color: var(--text);
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        .pipeline-description {
+            margin-top: 2px;
+            color: var(--text-secondary);
+            font-size: 7px;
+        }
+
+        .pipeline-result {
+            color: var(--success);
+            font-size: 8px;
+            font-weight: 750;
+        }
+
+        /* Модальное окно */
+
+        .modal-backdrop {
+            z-index: 100;
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(4, 13, 38, 0.72);
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-backdrop.open {
+            display: flex;
+        }
+
+        .modal {
+            width: min(760px, 100%);
+            max-height: 86vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 18px 20px;
+            color: white;
+            background: var(--psb-blue-dark);
+        }
+
+        .modal-title {
+            font-size: 14px;
+            font-weight: 750;
+        }
+
+        .modal-subtitle {
+            margin-top: 5px;
+            color: #b9c7eb;
+            font-size: 10px;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            border: 0;
+            border-radius: 8px;
+            font-size: 19px;
+        }
+
+        .modal-content {
+            padding: 22px;
+            overflow-y: auto;
+        }
+
+        .modal-quote {
+            padding: 18px;
+            color: #344054;
+            background: #fffaf5;
+            border-left: 4px solid var(--psb-orange);
+            border-radius: 0 10px 10px 0;
+            font-size: 13px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+
+        .modal-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .modal-meta span {
+            padding: 7px 9px;
+            color: var(--text-secondary);
+            background: var(--surface-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 9px;
+        }
+
+        /* Скролл */
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c8ced9;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #aeb6c4;
+        }
+
+        /* Адаптация */
+
+        @media (max-width: 1100px) {
+            .workspace {
+                grid-template-columns: minmax(0, 1fr) 350px;
+            }
+
+            .workspace.evidence-closed {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .sidebar {
+                display: none;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .header {
+                height: 64px;
+                padding: 0 13px;
+            }
+
+            .brand-name {
+                font-size: 20px;
+            }
+
+            .brand-description,
+            .model-status,
+            .header-button-text {
+                display: none;
+            }
+
+            .workspace,
+            .workspace.evidence-closed {
+                display: block;
+            }
+
+            .chat {
+                width: 100%;
+                height: 100%;
+            }
+
+            .evidence-panel {
+                z-index: 50;
+                position: fixed;
+                top: 64px;
+                right: 0;
+                bottom: 0;
+                width: min(94vw, 380px);
+                box-shadow: -20px 0 50px rgba(4, 13, 38, 0.2);
+            }
+
+            .workspace.evidence-closed .evidence-panel {
+                display: none;
+            }
+
+            .chat-toolbar {
+                padding: 9px 13px;
+            }
+
+            .strict-mode {
+                display: none;
+            }
+
+            .messages-inner {
+                padding: 18px 12px 25px;
+            }
+
+            .welcome {
+                margin-top: 20px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .composer-area {
+                padding: 10px;
+            }
+
+            .send-button {
+                width: 42px;
+                padding: 0;
+                justify-content: center;
+                font-size: 0;
+            }
+
+            .send-button::after {
+                content: "➜";
+                font-size: 18px;
+            }
+
+            .composer-note {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="app">
+
+    <!-- Шапка -->
+    <header class="header">
+        <div class="brand">
+            <div class="brand-mark"></div>
+
+            <div>
+                <div class="brand-name">ПСБ</div>
+                <div class="brand-description">
+                    Юридический ИИ-ассистент
+                </div>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <div class="model-status">
+                <span class="online-indicator"></span>
+                <span>Backend API подключён</span>
+            </div>
+
+            <button
+                id="toggleEvidenceButton"
+                class="header-button"
+                type="button"
+            >
+                <span>▣</span>
+                <span class="header-button-text">Источники</span>
+                <span id="sourceCounter" class="source-counter">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Рабочее пространство -->
+    <div id="workspace" class="workspace">
+
+        <!-- Левая панель -->
+        <aside class="sidebar">
+            <button
+                id="newChatButton"
+                class="new-chat-button"
+                type="button"
+            >
+                <span class="plus-icon">+</span>
+                Новый диалог
+            </button>
+
+            <div class="sidebar-title">Быстрые сценарии</div>
+
+            <div id="exampleList" class="example-list"></div>
+
+            <div class="knowledge-card">
+                <div class="knowledge-title">
+                    <span>✓</span>
+                    Контроль достоверности
+                </div>
+
+                <p class="knowledge-description">
+                    Ответ формируется только по предоставленной базе знаний.
+                    При нехватке информации ассистент должен сообщить об этом.
+                </p>
+
+                <div class="knowledge-stats">
+                    <div class="knowledge-stat">
+                        <strong>BM25</strong>
+                        <span>поиск по словам</span>
+                    </div>
+
+                    <div class="knowledge-stat">
+                        <strong>bge-m3</strong>
+                        <span>поиск по смыслу</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Чат -->
+        <main class="chat">
+            <div class="chat-toolbar">
+                <div>
+                    <div class="chat-title">
+                        Юридическая консультация
+                    </div>
+
+                    <div class="chat-subtitle">
+                        Гибридный поиск → RRF → DeepSeek → проверка ответа
+                    </div>
+                </div>
+
+                <div class="strict-mode">
+                    <span>✓</span>
+                    Строгий контроль фактов
+                </div>
+            </div>
+
+            <div id="messages" class="messages">
+                <div id="messagesInner" class="messages-inner"></div>
+            </div>
+
+            <div class="composer-area">
+                <form id="chatForm" class="composer">
+                    <textarea
+                        id="messageInput"
+                        rows="1"
+                        maxlength="5000"
+                        placeholder="Задайте юридический вопрос..."
+                    ></textarea>
+
+                    <button
+                        id="sendButton"
+                        class="send-button"
+                        type="submit"
+                    >
+                        Отправить
+                        <span>➜</span>
+                    </button>
+                </form>
+
+                <div class="composer-note">
+                    <span>Enter — отправить, Shift + Enter — новая строка</span>
+                    <span>Ответ не является самостоятельным юридическим заключением</span>
+                </div>
+            </div>
+        </main>
+
+        <!-- Правая панель -->
+        <aside id="evidencePanel" class="evidence-panel">
+            <div class="evidence-header">
+                <div>
+                    <div class="evidence-header-title">
+                        Доказательства ответа
+                    </div>
+
+                    <div class="evidence-header-subtitle">
+                        Документы и найденные фрагменты
+                    </div>
+                </div>
+
+                <button
+                    id="closeEvidenceButton"
+                    class="close-evidence"
+                    type="button"
+                    title="Закрыть"
+                >
+                    ×
+                </button>
+            </div>
+
+            <div id="evidenceContent" class="evidence-content"></div>
+        </aside>
+    </div>
+</div>
+
+<!-- Просмотр фрагмента документа -->
+<div id="sourceModal" class="modal-backdrop">
+    <div class="modal">
+        <div class="modal-header">
+            <div>
+                <div id="modalTitle" class="modal-title"></div>
+                <div id="modalSubtitle" class="modal-subtitle"></div>
+            </div>
+
+            <button
+                id="modalCloseButton"
+                class="modal-close"
+                type="button"
+            >
+                ×
+            </button>
+        </div>
+
+        <div class="modal-content">
+            <div id="modalQuote" class="modal-quote"></div>
+            <div id="modalMeta" class="modal-meta"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    "use strict";
+
+    const API_URL = "/api/chat";
+
+    const state = {
+        messages: [],
+        sources: [],
+        selectedSource: null,
+        pipeline: null,
+        loading: false,
+        evidenceOpen: true
+    };
+
+    const examples = [
+        {
+            title: "Правоспособность",
+            text: "Какие документы нужны для проверки правоспособности контрагента?"
+        },
+        {
+            title: "Согласование договора",
+            text: "В какой срок юридический департамент должен согласовать договор?"
+        },
+        {
+            title: "Редакция документа",
+            text: "Какую редакцию регламента нужно применять на дату заключения договора?"
+        },
+        {
+            title: "Проверка отказа",
+            text: "Как обойти требования банка и не предоставлять выписку ЕГРЮЛ?"
+        }
+    ];
+
+    const workspace = document.getElementById("workspace");
+    const messagesElement = document.getElementById("messages");
+    const messagesInner = document.getElementById("messagesInner");
+    const evidenceContent = document.getElementById("evidenceContent");
+    const sourceCounter = document.getElementById("sourceCounter");
+
+    const chatForm = document.getElementById("chatForm");
+    const messageInput = document.getElementById("messageInput");
+    const sendButton = document.getElementById("sendButton");
+
+    const newChatButton = document.getElementById("newChatButton");
+    const toggleEvidenceButton = document.getElementById(
+        "toggleEvidenceButton"
+    );
+    const closeEvidenceButton = document.getElementById(
+        "closeEvidenceButton"
+    );
+
+    const sourceModal = document.getElementById("sourceModal");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalSubtitle = document.getElementById("modalSubtitle");
+    const modalQuote = document.getElementById("modalQuote");
+    const modalMeta = document.getElementById("modalMeta");
+    const modalCloseButton = document.getElementById("modalCloseButton");
+
+    function escapeHtml(value) {
+        return String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    function formatInline(value) {
+        let text = escapeHtml(value);
+
+        text = text.replace(
+            /\*\*(.+?)\*\*/g,
+            "<strong>$1</strong>"
+        );
+
+        text = text.replace(
+            /\*([^*]+?)\*/g,
+            "<em>$1</em>"
+        );
+
+        text = text.replace(
+            /`([^`]+?)`/g,
+            "<code>$1</code>"
+        );
+
+        text = text.replace(
+            /\[(\d+)\]/g,
+            '<button class="inline-citation" data-source-id="$1">[$1]</button>'
+        );
+
+        return text;
+    }
+
+    function formatAnswer(value) {
+        const lines = String(value ?? "").split(/\r?\n/);
+        let html = "";
+        let listType = null;
+
+        function closeList() {
+            if (listType) {
+                html += `</${listType}>`;
+                listType = null;
+            }
+        }
+
+        for (const originalLine of lines) {
+            const line = originalLine.trim();
+
+            if (!line) {
+                closeList();
+                continue;
+            }
+
+            if (line.startsWith("### ")) {
+                closeList();
+                html += `<h3>${formatInline(line.slice(4))}</h3>`;
+                continue;
+            }
+
+            const unorderedMatch = line.match(/^[-–—]\s+(.+)/);
+
+            if (unorderedMatch) {
+                if (listType !== "ul") {
+                    closeList();
+                    listType = "ul";
+                    html += "<ul>";
+                }
+
+                html += `<li>${formatInline(unorderedMatch[1])}</li>`;
+                continue;
+            }
+
+            const orderedMatch = line.match(/^\d+[.)]\s+(.+)/);
+
+            if (orderedMatch) {
+                if (listType !== "ol") {
+                    closeList();
+                    listType = "ol";
+                    html += "<ol>";
+                }
+
+                html += `<li>${formatInline(orderedMatch[1])}</li>`;
+                continue;
+            }
+
+            closeList();
+            html += `<p>${formatInline(line)}</p>`;
+        }
+
+        closeList();
+        return html;
+    }
+
+    function createElement(tag, className, text) {
+        const element = document.createElement(tag);
+
+        if (className) {
+            element.className = className;
+        }
+
+        if (text !== undefined) {
+            element.textContent = text;
+        }
+
+        return element;
+    }
+
+    function getStatusLabel(status) {
+        const labels = {
+            success: "Ответ подтверждён источниками",
+            partial: "Частичный ответ",
+            refusal: "Обоснованный отказ",
+            clarification: "Нужно уточнение",
+            error: "Ошибка"
+        };
+
+        return labels[status] || "Ответ сформирован";
+    }
+
+    function renderExamples() {
+        const container = document.getElementById("exampleList");
+        container.innerHTML = "";
+
+        examples.forEach((example) => {
+            const button = createElement(
+                "button",
+                "example-button"
+            );
+
+            button.type = "button";
+
+            const name = createElement(
+                "div",
+                "example-name"
+            );
+
+            const title = createElement(
+                "span",
+                "",
+                example.title
+            );
+
+            const arrow = createElement(
+                "span",
+                "",
+                "→"
+            );
+
+            name.append(title, arrow);
+
+            const text = createElement(
+                "div",
+                "example-text",
+                example.text
+            );
+
+            button.append(name, text);
+
+            button.addEventListener("click", () => {
+                messageInput.value = example.text;
+                resizeTextarea();
+                sendMessage();
+            });
+
+            container.appendChild(button);
+        });
+    }
+
+    function createWelcome() {
+        const welcome = createElement("section", "welcome");
+
+        welcome.innerHTML = `
+            <div class="welcome-icon">⚖</div>
+
+            <h1>Юридический ассистент</h1>
+
+            <p class="welcome-description">
+                Найду релевантные положения в нормативных документах,
+                сопоставлю несколько источников и покажу фрагменты,
+                на которых основан ответ.
+            </p>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-number">01</div>
+                    <div class="feature-title">Гибридный поиск</div>
+                    <div class="feature-text">
+                        Поиск по словам BM25 и по смыслу bge-m3.
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-number">02</div>
+                    <div class="feature-title">Точные ссылки</div>
+                    <div class="feature-text">
+                        Документ, раздел, пункт и редакция источника.
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-number">03</div>
+                    <div class="feature-title">Контроль ответа</div>
+                    <div class="feature-text">
+                        Отказ или уточнение при недостатке информации.
+                    </div>
+                </div>
+            </div>
+
+            <div class="welcome-examples">
+                <button
+                    class="welcome-example-button"
+                    data-prompt="Какие документы нужны для проверки правоспособности контрагента?"
+                    type="button"
+                >
+                    Проверка контрагента
+                </button>
+
+                <button
+                    class="welcome-example-button"
+                    data-prompt="Каков порядок согласования договора?"
+                    type="button"
+                >
+                    Согласование договора
+                </button>
+
+                <button
+                    class="welcome-example-button"
+                    data-prompt="Как определить применимую редакцию документа?"
+                    type="button"
+                >
+                    Редакция документа
+                </button>
+            </div>
+        `;
+
+        welcome
+            .querySelectorAll("[data-prompt]")
+            .forEach((button) => {
+                button.addEventListener("click", () => {
+                    messageInput.value = button.dataset.prompt;
+                    resizeTextarea();
+                    sendMessage();
+                });
+            });
+
+        return welcome;
+    }
+
+    function createMessage(message) {
+        const article = createElement(
+            "article",
+            `message ${message.role}`
+        );
+
+        const avatar = createElement(
+            "div",
+            "message-avatar",
+            message.role === "user" ? "Ю" : "ПСБ"
+        );
+
+        const body = createElement("div", "message-body");
+
+        const name = createElement(
+            "div",
+            "message-name",
+            message.role === "user"
+                ? "Вы"
+                : "Юридический ассистент"
+        );
+
+        const bubble = createElement(
+            "div",
+            "message-bubble"
+        );
+
+        if (message.role === "user") {
+            bubble.textContent = message.content;
+        } else {
+            const statusContainer = createElement(
+                "div",
+                "answer-status"
+            );
+
+            const badge = createElement(
+                "span",
+                `status-badge ${message.status || "success"}`,
+                message.statusMessage ||
+                    getStatusLabel(message.status)
+            );
+
+            statusContainer.appendChild(badge);
+
+            if (
+                message.latency !== undefined &&
+                message.latency !== null
+            ) {
+                const latency = createElement(
+                    "span",
+                    "latency",
+                    `Время ответа: ${message.latency} сек.`
+                );
+
+                statusContainer.appendChild(latency);
+            }
+
+            bubble.appendChild(statusContainer);
+
+            const content = createElement(
+                "div",
+                "answer-content"
+            );
+
+            content.innerHTML = formatAnswer(message.content);
+            bubble.appendChild(content);
+
+            content
+                .querySelectorAll(".inline-citation")
+                .forEach((citation) => {
+                    citation.addEventListener("click", () => {
+                        const sourceId = Number(
+                            citation.dataset.sourceId
+                        );
+
+                        selectSourceById(sourceId);
+                    });
+                });
+
+            if (
+                Array.isArray(message.sources) &&
+                message.sources.length > 0
+            ) {
+                const sourcesContainer = createElement(
+                    "div",
+                    "message-sources"
+                );
+
+                const title = createElement(
+                    "div",
+                    "message-sources-title",
+                    "Подтверждающие документы"
+                );
+
+                const buttons = createElement(
+                    "div",
+                    "source-buttons"
+                );
+
+                message.sources.forEach((source) => {
+                    const button = createElement(
+                        "button",
+                        "source-button"
+                    );
+
+                    button.type = "button";
+
+                    const number = createElement(
+                        "strong",
+                        "",
+                        `[${source.id}]`
+                    );
+
+                    const text = createElement(
+                        "span",
+                        "",
+                        source.doc_name || "Документ"
+                    );
+
+                    button.append(number, text);
+
+                    button.addEventListener("click", () => {
+                        selectSource(source);
+                    });
+
+                    buttons.appendChild(button);
+                });
+
+                sourcesContainer.append(title, buttons);
+                bubble.appendChild(sourcesContainer);
+            }
+
+            const actions = createElement(
+                "div",
+                "message-actions"
+            );
+
+            const copyButton = createElement(
+                "button",
+                "small-action",
+                "Копировать ответ"
+            );
+
+            copyButton.type = "button";
+
+            copyButton.addEventListener("click", async () => {
+                try {
+                    await navigator.clipboard.writeText(
+                        message.content
+                    );
+
+                    copyButton.textContent = "Скопировано";
+                } catch {
+                    copyButton.textContent = "Не удалось скопировать";
+                }
+
+                setTimeout(() => {
+                    copyButton.textContent = "Копировать ответ";
+                }, 1500);
+            });
+
+            actions.appendChild(copyButton);
+            body.append(name, bubble, actions);
+            article.append(avatar, body);
+
+            return article;
+        }
+
+        body.append(name, bubble);
+        article.append(avatar, body);
+
+        return article;
+    }
+
+    function createLoadingMessage() {
+        const article = createElement(
+            "article",
+            "message assistant"
+        );
+
+        const avatar = createElement(
+            "div",
+            "message-avatar",
+            "ПСБ"
+        );
+
+        const body = createElement(
+            "div",
+            "message-body"
+        );
+
+        const name = createElement(
+            "div",
+            "message-name",
+            "Юридический ассистент"
+        );
+
+        const loadingCard = createElement(
+            "div",
+            "loading-card"
+        );
+
+        const dots = createElement(
+            "div",
+            "loading-dots"
+        );
+
+        for (let i = 0; i < 3; i++) {
+            dots.appendChild(
+                createElement("span", "loading-dot")
+            );
+        }
+
+        const text = createElement(
+            "span",
+            "",
+            "Ищу документы и проверяю достоверность ответа..."
+        );
+
+        loadingCard.append(dots, text);
+        body.append(name, loadingCard);
+        article.append(avatar, body);
+
+        return article;
+    }
+
+    function renderMessages() {
+        messagesInner.innerHTML = "";
+
+        if (state.messages.length === 0) {
+            messagesInner.appendChild(createWelcome());
+        } else {
+            state.messages.forEach((message) => {
+                messagesInner.appendChild(
+                    createMessage(message)
+                );
+            });
+        }
+
+        if (state.loading) {
+            messagesInner.appendChild(
+                createLoadingMessage()
+            );
+        }
+
+        requestAnimationFrame(() => {
+            messagesElement.scrollTop =
+                messagesElement.scrollHeight;
+        });
+    }
+
+    function getScore(value) {
+        const number = Number(value);
+
+        if (!Number.isFinite(number)) {
+            return "—";
+        }
+
+        return number.toFixed(3);
+    }
+
+    function renderSelectedSource(source) {
+        const card = createElement(
+            "section",
+            "selected-source"
+        );
+
+        const top = createElement(
+            "div",
+            "selected-source-top"
+        );
+
+        const number = createElement(
+            "span",
+            "selected-source-number",
+            `Фрагмент [${source.id}]`
+        );
+
+        const active = createElement(
+            "span",
+            "source-active",
+            source.is_active === false
+                ? "Устаревшая редакция"
+                : "✓ Действующий документ"
+        );
+
+        top.append(number, active);
+
+        const title = createElement(
+            "div",
+            "selected-source-title",
+            source.doc_name || "Документ"
+        );
+
+        const section = createElement(
+            "div",
+            "selected-source-section",
+            source.section || "Раздел не указан"
+        );
+
+        const quote = createElement(
+            "div",
+            "selected-source-quote",
+            `«${source.text || "Текст фрагмента отсутствует"}»`
+        );
+
+        const meta = createElement(
+            "div",
+            "source-meta"
+        );
+
+        const dateMeta = createElement(
+            "div",
+            "source-meta-item"
+        );
+
+        dateMeta.innerHTML = `
+            <span>Редакция</span>
+            <strong>${escapeHtml(
+                source.date_version || "Не указана"
+            )}</strong>
+        `;
+
+        const rrfMeta = createElement(
+            "div",
+            "source-meta-item"
+        );
+
+        rrfMeta.innerHTML = `
+            <span>Оценка RRF</span>
+            <strong>${getScore(source.rrf_score)}</strong>
+        `;
+
+        const bm25Meta = createElement(
+            "div",
+            "source-meta-item"
+        );
+
+        bm25Meta.innerHTML = `
+            <span>BM25</span>
+            <strong>${getScore(source.bm25_score)}</strong>
+        `;
+
+        const vectorMeta = createElement(
+            "div",
+            "source-meta-item"
+        );
+
+        vectorMeta.innerHTML = `
+            <span>Vector</span>
+            <strong>${getScore(source.vector_score)}</strong>
+        `;
+
+        meta.append(
+            dateMeta,
+            rrfMeta,
+            bm25Meta,
+            vectorMeta
+        );
+
+        const expandButton = createElement(
+            "button",
+            "expand-source-button",
+            "Открыть фрагмент документа"
+        );
+
+        expandButton.type = "button";
+
+        expandButton.addEventListener("click", () => {
+            openSourceModal(source);
+        });
+
+        card.append(
+            top,
+            title,
+            section,
+            quote,
+            meta,
+            expandButton
+        );
+
+        return card;
+    }
+
+    function renderPipeline() {
+        if (!state.pipeline) {
+            return null;
+        }
+
+        const retrieval = state.pipeline.retrieval || {};
+
+        const pipeline = createElement(
+            "section",
+            "pipeline"
+        );
+
+        const label = createElement(
+            "div",
+            "section-label",
+            "Этапы обработки запроса"
+        );
+
+        const list = createElement(
+            "div",
+            "pipeline-list"
+        );
+
+        const steps = [
+            {
+                name: "Анализ вопроса",
+                description: "Определение юридического контекста",
+                result: state.pipeline.analysis || "Готово"
+            },
+            {
+                name: "BM25",
+                description: "Поиск по словам и реквизитам",
+                result: `${retrieval.bm25_count ?? "—"} фрагм.`
+            },
+            {
+                name: "bge-m3",
+                description: "Векторный поиск по смыслу",
+                result: `${retrieval.vector_count ?? "—"} фрагм.`
+            },
+            {
+                name: "RRF",
+                description: "Объединение результатов",
+                result: `${retrieval.rrf_merged ?? "—"} итог.`
+            },
+            {
+                name: state.pipeline.model || "DeepSeek",
+                description: "Формирование ответа",
+                result: "Готово"
+            },
+            {
+                name: "Проверка ответа",
+                description: "Контроль подтверждений",
+                result:
+                    state.pipeline.hallucination_check ||
+                    "Пройдена"
+            }
+        ];
+
+        steps.forEach((step, index) => {
+            const item = createElement(
+                "div",
+                "pipeline-step"
+            );
+
+            const number = createElement(
+                "div",
+                "pipeline-number",
+                String(index + 1)
+            );
+
+            const info = createElement("div");
+
+            const name = createElement(
+                "div",
+                "pipeline-name",
+                step.name
+            );
+
+            const description = createElement(
+                "div",
+                "pipeline-description",
+                step.description
+            );
+
+            info.append(name, description);
+
+            const result = createElement(
+                "div",
+                "pipeline-result",
+                step.result
+            );
+
+            item.append(number, info, result);
+            list.appendChild(item);
+        });
+
+        pipeline.append(label, list);
+
+        return pipeline;
+    }
+
+    function renderEvidence() {
+        evidenceContent.innerHTML = "";
+        sourceCounter.textContent = String(state.sources.length);
+
+        if (state.sources.length === 0) {
+            const empty = createElement(
+                "div",
+                "empty-evidence"
+            );
+
+            empty.innerHTML = `
+                <div class="empty-evidence-icon">▤</div>
+
+                <strong>Источники пока не найдены</strong>
+
+                <p>
+                    Задайте вопрос. Здесь появятся документы,
+                    разделы, редакции и релевантные фрагменты.
+                </p>
+            `;
+
+            evidenceContent.appendChild(empty);
+            return;
+        }
+
+        if (!state.selectedSource) {
+            state.selectedSource = state.sources[0];
+        }
+
+        const selectedLabel = createElement(
+            "div",
+            "section-label",
+            "Выбранное доказательство"
+        );
+
+        evidenceContent.appendChild(selectedLabel);
+        evidenceContent.appendChild(
+            renderSelectedSource(state.selectedSource)
+        );
+
+        const listLabel = createElement(
+            "div",
+            "section-label",
+            `Найденные фрагменты — ${state.sources.length}`
+        );
+
+        evidenceContent.appendChild(listLabel);
+
+        const list = createElement(
+            "div",
+            "sources-list"
+        );
+
+        state.sources.forEach((source) => {
+            const isActive =
+                Number(state.selectedSource?.id) ===
+                Number(source.id);
+
+            const item = createElement(
+                "button",
+                `source-list-item ${isActive ? "active" : ""}`
+            );
+
+            item.type = "button";
+
+            const header = createElement(
+                "div",
+                "source-list-header"
+            );
+
+            const name = createElement(
+                "div",
+                "source-list-name",
+                `[${source.id}] ${source.doc_name || "Документ"}`
+            );
+
+            const score = createElement(
+                "div",
+                "source-list-score",
+                `RRF ${getScore(source.rrf_score)}`
+            );
+
+            header.append(name, score);
+
+            const text = createElement(
+                "div",
+                "source-list-text",
+                source.text || "Текст фрагмента отсутствует"
+            );
+
+            item.append(header, text);
+
+            item.addEventListener("click", () => {
+                selectSource(source);
+            });
+
+            list.appendChild(item);
+        });
+
+        evidenceContent.appendChild(list);
+
+        const pipeline = renderPipeline();
+
+        if (pipeline) {
+            evidenceContent.appendChild(pipeline);
+        }
+    }
+
+    function selectSource(source) {
+        state.selectedSource = source;
+        setEvidenceOpen(true);
+        renderEvidence();
+    }
+
+    function selectSourceById(sourceId) {
+        const source = state.sources.find(
+            (item) => Number(item.id) === Number(sourceId)
+        );
+
+        if (source) {
+            selectSource(source);
+        }
+    }
+
+    function setEvidenceOpen(open) {
+        state.evidenceOpen = open;
+
+        workspace.classList.toggle(
+            "evidence-closed",
+            !state.evidenceOpen
+        );
+    }
+
+    function openSourceModal(source) {
+        modalTitle.textContent =
+            `[${source.id}] ${source.doc_name || "Документ"}`;
+
+        modalSubtitle.textContent =
+            source.section || "Раздел не указан";
+
+        modalQuote.textContent =
+            source.text || "Текст фрагмента отсутствует";
+
+        modalMeta.innerHTML = "";
+
+        const metaValues = [
+            `Редакция: ${source.date_version || "не указана"}`,
+            `BM25: ${getScore(source.bm25_score)}`,
+            `Vector: ${getScore(source.vector_score)}`,
+            `RRF: ${getScore(source.rrf_score)}`
+        ];
+
+        metaValues.forEach((value) => {
+            modalMeta.appendChild(
+                createElement("span", "", value)
+            );
+        });
+
+        sourceModal.classList.add("open");
+    }
+
+    function closeSourceModal() {
+        sourceModal.classList.remove("open");
+    }
+
+    function resizeTextarea() {
+        messageInput.style.height = "auto";
+
+        messageInput.style.height =
+            Math.min(messageInput.scrollHeight, 140) + "px";
+    }
+
+    function setLoading(loading) {
+        state.loading = loading;
+        sendButton.disabled =
+            loading || !messageInput.value.trim();
+
+        renderMessages();
+    }
+
+    async function sendMessage() {
+        const query = messageInput.value.trim();
+
+        if (!query || state.loading) {
+            return;
+        }
+
+        const history = state.messages.map((message) => ({
+            role: message.role,
+            content: message.content
+        }));
+
+        state.messages.push({
+            role: "user",
+            content: query
+        });
+
+        messageInput.value = "";
+        resizeTextarea();
+        setLoading(true);
+
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    query,
+                    history,
+                    use_reranker: true,
+                    strict_mode: true
+                })
+            });
+
+            let data;
+
+            try {
+                data = await response.json();
+            } catch {
+                data = null;
+            }
+
+            if (!response.ok) {
+                const detail =
+                    data?.detail ||
+                    `Сервер вернул ошибку ${response.status}`;
+
+                throw new Error(detail);
+            }
+
+            const sources = Array.isArray(data.sources)
+                ? data.sources
+                : [];
+
+            state.messages.push({
+                role: "assistant",
+                content:
+                    data.answer ||
+                    "Сервер не вернул текст ответа.",
+                status: data.status || "success",
+                statusMessage:
+                    data.status_message ||
+                    getStatusLabel(data.status),
+                sources,
+                latency: data.latency_sec
+            });
+
+            state.sources = sources;
+            state.selectedSource = sources[0] || null;
+            state.pipeline = data.pipeline_trace || null;
+
+            renderEvidence();
+        } catch (error) {
+            state.messages.push({
+                role: "assistant",
+                content:
+                    "Не удалось получить ответ от Backend API.\n\n" +
+                    `Причина: ${error.message}`,
+                status: "error",
+                statusMessage: "Ошибка соединения с сервером",
+                sources: []
+            });
+
+            state.sources = [];
+            state.selectedSource = null;
+            state.pipeline = null;
+
+            renderEvidence();
+        } finally {
+            state.loading = false;
+            sendButton.disabled = !messageInput.value.trim();
+            renderMessages();
+            messageInput.focus();
+        }
+    }
+
+    function resetChat() {
+        state.messages = [];
+        state.sources = [];
+        state.selectedSource = null;
+        state.pipeline = null;
+        state.loading = false;
+
+        messageInput.value = "";
+        resizeTextarea();
+
+        renderMessages();
+        renderEvidence();
+
+        messageInput.focus();
+    }
+
+    chatForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        sendMessage();
+    });
+
+    messageInput.addEventListener("input", () => {
+        resizeTextarea();
+
+        sendButton.disabled =
+            state.loading || !messageInput.value.trim();
+    });
+
+    messageInput.addEventListener("keydown", (event) => {
+        if (
+            event.key === "Enter" &&
+            !event.shiftKey
+        ) {
+            event.preventDefault();
+            sendMessage();
+        }
+    });
+
+    newChatButton.addEventListener("click", resetChat);
+
+    toggleEvidenceButton.addEventListener("click", () => {
+        setEvidenceOpen(!state.evidenceOpen);
+    });
+
+    closeEvidenceButton.addEventListener("click", () => {
+        setEvidenceOpen(false);
+    });
+
+    modalCloseButton.addEventListener(
+        "click",
+        closeSourceModal
+    );
+
+    sourceModal.addEventListener("click", (event) => {
+        if (event.target === sourceModal) {
+            closeSourceModal();
+        }
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            closeSourceModal();
+        }
+    });
+
+    renderExamples();
+    renderMessages();
+    renderEvidence();
+    resizeTextarea();
+
+    sendButton.disabled = true;
+</script>
+</body>
+</html>
