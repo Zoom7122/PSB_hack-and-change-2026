@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ПСБ — API Gateway (демо)</title>
+  <style>
+    :root { color-scheme:light; font-family:system-ui,Arial,sans-serif; background:#f4f6fa; color:#1d2b46; }
+    body {margin:0;} header {background:#092f83;color:white;padding:18px 24px;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;}
+    header span {font-weight:800;} select {padding:9px;border-radius:8px;border:1px solid #b7c4d7;}
+    main {max-width:860px;margin:24px auto;background:white;border-radius:14px;box-shadow:0 6px 28px #152a4212;overflow:hidden;}
+    .note {background:#fff3da;color:#694609;padding:12px 20px;font-size:14px;}
+    #messages {min-height:350px;max-height:65vh;overflow:auto;display:flex;flex-direction:column;gap:12px;padding:20px;}
+    .msg {border-radius:12px;padding:12px 14px;max-width:80%;white-space:pre-wrap;line-height:1.5;word-break:break-word;}
+    .user {background:#e8efff;align-self:flex-end;} .assistant {background:#f2f3f7;align-self:flex-start;}
+    form {display:flex;padding:16px;gap:10px;border-top:1px solid #e0e5ed;}
+    textarea {flex:1;min-height:48px;resize:vertical;padding:12px;border:1px solid #b7c4d7;border-radius:9px;font:inherit;}
+    button {background:#e77d18;color:white;border:0;border-radius:9px;padding:10px 22px;font:inherit;font-weight:700;cursor:pointer;}
+    button:disabled {opacity:.45;} #error {color:#ad1e38;padding:0 18px 10px;min-height:1.3em;}
+  </style>
+</head>
+<body>
+<header><span>ПСБ | Юридический ассистент — тест модуля 1</span>
+<label for="user">Пользователь: <select id="user"><option value="user1">Пользователь 1</option><option value="user2">Пользователь 2</option><option value="user3">Пользователь 3</option></select></label></header>
+<main>
+  <div class="note">Тестовый режим: вопросы и история сохраняются, но юридические ответы пока не генерируются.</div>
+  <div id="messages" aria-live="polite"></div>
+  <form id="chat-form"><textarea id="question" placeholder="Введите вопрос..." required></textarea><button id="send" type="submit">Отправить</button></form>
+  <div id="error" role="alert"></div>
+</main>
+<script>
+const userSelect=document.getElementById('user'), box=document.getElementById('messages');
+const form=document.getElementById('chat-form'), question=document.getElementById('question');
+const send=document.getElementById('send'), error=document.getElementById('error');
+let messages=[], busy=false;
+function addMessage(role,content){const el=document.createElement('div');el.className='msg '+role;el.textContent=content;box.appendChild(el);box.scrollTop=box.scrollHeight;}
+async function readHistory(){
+  const selected=userSelect.value; error.textContent=''; box.replaceChildren();
+  const response=await fetch('/api/history',{headers:{'X-Demo-User':selected}});
+  if(!response.ok) throw Error('Ошибка загрузки истории');
+  const data=await response.json();
+  if(selected!==userSelect.value) return;
+  messages=data.messages.map(m=>({role:m.role,content:m.content}));
+  data.messages.forEach(m=>addMessage(m.role,m.content));
+}
+userSelect.addEventListener('change',()=>{readHistory().catch(e=>error.textContent=e.message)});
+form.addEventListener('submit',async e=>{
+  e.preventDefault(); if(busy||!question.value.trim())return;
+  busy=true;send.disabled=true;userSelect.disabled=true;error.textContent='';
+  const text=question.value; const history=messages.map(({role,content})=>({role,content}));
+  try{
+    const response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','X-Demo-User':userSelect.value},body:JSON.stringify({question:text,history})});
+    const data=await response.json();
+    if(!response.ok)throw Error(JSON.stringify(data.detail||'Ошибка сервера'));
+    question.value='';await readHistory();
+  }catch(err){error.textContent=err.message;}
+  finally{busy=false;send.disabled=false;userSelect.disabled=false;question.focus();}
+});
+readHistory().catch(e=>error.textContent=e.message);
+</script>
+</body>
+</html>
