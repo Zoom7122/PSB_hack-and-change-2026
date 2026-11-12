@@ -41,8 +41,12 @@ from dataclasses import dataclass
 
 from rank_bm25 import BM25Okapi
 
-import textproc
-from chunking import Chunk
+if __package__:
+    from . import textproc
+    from .chunking import Chunk
+else:
+    import textproc
+    from chunking import Chunk
 
 # Стандартные параметры BM25. Вынесены в константы, чтобы на шаге 4 можно было
 # проверить на метриках, помогает ли их изменение.

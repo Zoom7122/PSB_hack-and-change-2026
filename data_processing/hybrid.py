@@ -31,12 +31,19 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-import config
-import textproc
-from chunking import Chunk
-from llm_client import LLMClient, LLMError
-from search import LexicalIndex
-from vector_index import VectorIndex
+if __package__:
+    from . import config, textproc
+    from .chunking import Chunk
+    from .llm_client import LLMClient, LLMError
+    from .search import LexicalIndex
+    from .vector_index import VectorIndex
+else:
+    import config
+    import textproc
+    from chunking import Chunk
+    from llm_client import LLMClient, LLMError
+    from search import LexicalIndex
+    from vector_index import VectorIndex
 
 
 @dataclass

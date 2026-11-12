@@ -57,12 +57,12 @@ class FakeQueryService:
         FakeQueryService.last_response = await self.llm_client.complete(
             [{"role": "user", "content": request.question}]
         )
-        return {"status": "ready"}
+        return {"status": "clarification_required", "message": "Уточните вопрос", "search_request": None}
 
 
 class SolutionEntrypointTests(unittest.TestCase):
-    def test_main_logs_raw_response_and_keeps_submission_answers_empty(self):
-        """Запускает CSV-путь с подменным клиентом и проверяет лог и сабмит."""
+    def test_main_logs_response_and_writes_clarification(self):
+        """Сохраняет уточнение Query Processing и маскирует ключ в логе."""
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             data_dir = root / "data"
@@ -83,6 +83,7 @@ class SolutionEntrypointTests(unittest.TestCase):
                 "DATA_DIR": str(data_dir),
                 "QUERY_PROCESSING_MODE": "single",
                 "MAX_WORKERS": "1",
+                "ARTIFACTS_DIR": str(root / "artifacts"),
             }
             FakeQueryService.last_request = None
             FakeQueryService.last_response = None
@@ -93,8 +94,11 @@ class SolutionEntrypointTests(unittest.TestCase):
                 patch("API.for_solutions.SERVICE_TYPES", {"single": FakeQueryService}),
                 patch("API.for_solutions.OpenAIClient", return_value=fake_client),
                 patch.object(LLMSettings, "from_environment", return_value=settings),
+                patch("API.for_solutions.Corpus.from_directory") as fake_corpus,
+                patch("API.for_solutions.create_search") as fake_search,
                 self.assertLogs("solution", level="INFO") as captured,
             ):
+                fake_corpus.return_value.version = "test-corpus"
                 for_solutions.main()
 
             with (root / "submission.csv").open(
@@ -102,10 +106,11 @@ class SolutionEntrypointTests(unittest.TestCase):
             ) as submission_file:
                 rows = list(csv.DictReader(submission_file))
 
-        self.assertEqual(rows, [{"id": "case-1", "answer": ""}])
+        self.assertEqual(rows, [{"id": "case-1", "answer": "Уточните вопрос"}])
         self.assertEqual(FakeQueryService.last_request.question, "договор расторгнут?")
         self.assertEqual(FakeQueryService.last_response, "raw model answer service-secret")
         self.assertTrue(fake_client.closed)
+        fake_search.return_value.close.assert_called_once()
         log_text = "\n".join(captured.output)
         self.assertIn('"id": "case-1"', log_text)
         self.assertIn("[REDACTED_SECRET]", log_text)

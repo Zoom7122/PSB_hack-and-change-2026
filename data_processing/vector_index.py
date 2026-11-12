@@ -37,8 +37,12 @@ from pathlib import Path
 
 import numpy as np
 
-import config
-from chunking import Chunk
+if __package__:
+    from . import config
+    from .chunking import Chunk
+else:
+    import config
+    from chunking import Chunk
 
 
 @dataclass

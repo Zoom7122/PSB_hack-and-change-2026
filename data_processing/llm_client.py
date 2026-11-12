@@ -35,7 +35,10 @@ from dataclasses import dataclass
 
 import httpx
 
-import config
+if __package__:
+    from . import config
+else:
+    import config
 
 # Таймаут на один запрос. 60 секунд — компромисс: генерация длинного ответа
 # укладывается, а зависший запрос не съедает весь бюджет прогона.

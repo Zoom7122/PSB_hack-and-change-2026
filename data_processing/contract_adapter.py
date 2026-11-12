@@ -25,10 +25,14 @@ from __future__ import annotations
 
 import re
 
-import config
-import hybrid
-import refs
-from chunking import Chunk
+if __package__:
+    from . import config, hybrid, refs
+    from .chunking import Chunk
+else:
+    import config
+    import hybrid
+    import refs
+    from chunking import Chunk
 
 CORPUS_VERSION = "kb-v1"
 

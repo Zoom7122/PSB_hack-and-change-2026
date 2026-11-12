@@ -1,0 +1,8 @@
+.venv/
+.venv-local/
+__pycache__/
+*.py[cod]
+.env
+artifacts/
+dist/
+submission.verified.csv

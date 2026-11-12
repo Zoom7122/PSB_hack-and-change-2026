@@ -1,0 +1,2 @@
+-r query_processing_module/requirements.txt
+-r data_processing/requirements.txt

@@ -25,7 +25,10 @@ import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 
-import config
+if __package__:
+    from . import config
+else:
+    import config
 
 # Расширения, из которых умеем доставать текст. Остальные файлы в архиве
 # (картинки, pdf и т.п.) пропускаем с предупреждением, но не падаем.

@@ -28,7 +28,10 @@ import re
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
-from ingest import RawDoc
+if __package__:
+    from .ingest import RawDoc
+else:
+    from ingest import RawDoc
 
 # ---------------------------------------------------------------------------
 # РЕГУЛЯРНЫЕ ВЫРАЖЕНИЯ
