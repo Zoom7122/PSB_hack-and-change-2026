@@ -1,0 +1,321 @@
+{
+  "request_id": "req-fix-010",
+  "status": "ok",
+  "filters_applied": true,
+  "candidates_dropped_by_filter": 18,
+  "corpus_version": "kb-v1",
+  "empty_reason": null,
+  "limits": {
+    "vector_top_k": 30,
+    "bm25_top_k": 30,
+    "fused_top_k": 15
+  },
+  "fusion": {
+    "k": 60,
+    "weights": {
+      "bm25": 0.1,
+      "vector": 1.0
+    },
+    "bm25_depth": 5
+  },
+  "stats": {
+    "max_bm25": 9.3766,
+    "max_vector": 0.0,
+    "n_above_bm25_gate": 12,
+    "n_above_vector_gate": 0,
+    "gates": {
+      "bm25_min": 4.0,
+      "vector_min": 0.3
+    }
+  },
+  "candidates": [
+    {
+      "chunk_id": "kb-v1:dogovor-arendy-a-08-2024-severnyy-sklad-824866::п. 6.2#16",
+      "document_id": "dogovor-arendy-a-08-2024-severnyy-sklad-824866",
+      "document_title": "Договор аренды № А-08/2024 Северный Склад",
+      "document_type": "contract",
+      "document_number": "А-08/2024",
+      "revision_id": null,
+      "effective_from": null,
+      "effective_to": null,
+      "section": "п. 6.2",
+      "cite_label": "п. 6.2",
+      "page": null,
+      "source_path": null,
+      "text": "Договор может быть расторгнут по соглашению Сторон, а также в иных случаях, предусмотренных законодательством Российской Федерации.",
+      "rrf_rank": 1,
+      "rrf_score": 0.015873,
+      "matched_by": [
+        "bm25"
+      ],
+      "scores": {
+        "bm25": 7.2259,
+        "vector": 0.0
+      }
+    },
+    {
+      "chunk_id": "kb-v1:dogovor-postavki-p-17-2024-alfa-treyd-e57e34::п. 7.4#18",
+      "document_id": "dogovor-postavki-p-17-2024-alfa-treyd-e57e34",
+      "document_title": "Договор поставки № П-17/2024 Альфа-Трейд",
+      "document_type": "contract",
+      "document_number": "П-17/2024",
+      "revision_id": null,
+      "effective_from": null,
+      "effective_to": null,
+      "section": "п. 7.4",
+      "cite_label": "п. 7.4",
+      "page": null,
+      "source_path": null,
+      "text": "Стороны освобождаются от ответственности за неисполнение обязательств, вызванное обстоятельствами непреодолимой силы, при условии уведомления другой Стороны в течение 5 (пяти) рабочих дней с момента их наступления.",
+      "rrf_rank": 2,
+      "rrf_score": 0.015625,
+      "matched_by": [
+        "bm25"
+      ],
+      "scores": {
+        "bm25": 5.8312,
+        "vector": 0.0
+      }
+    },
+    {
+      "chunk_id": "kb-v1:dogovor-arendy-a-08-2024-severnyy-sklad-824866::п. 6.1#15",
+      "document_id": "dogovor-arendy-a-08-2024-severnyy-sklad-824866",
+      "document_title": "Договор аренды № А-08/2024 Северный Склад",
+      "document_type": "contract",
+      "document_number": "А-08/2024",
+      "revision_id": null,
+      "effective_from": null,
+      "effective_to": null,
+      "section": "п. 6.1",
+      "cite_label": "п. 6.1",
+      "page": null,
+      "source_path": null,
+      "text": "Изменения и дополнения к договору оформляются дополнительными соглашениями в письменной форме.",
+      "rrf_rank": 3,
+      "rrf_score": 0.013158,
+      "matched_by": [
+        "bm25"
+      ],
+      "scores": {
+        "bm25": 1.0226,
+        "vector": 0.0
+      }
+    },
+    {
+      "chunk_id": "kb-v1:dogovor-postavki-p-17-2024-alfa-treyd-e57e34::п. 9.1#22",
+      "document_id": "dogovor-postavki-p-17-2024-alfa-treyd-e57e34",
+      "document_title": "Договор поставки № П-17/2024 Альфа-Трейд",
+      "document_type": "contract",
+      "document_number": "П-17/2024",
+      "revision_id": null,
+      "effective_from": null,
+      "effective_to": null,
+      "section": "п. 9.1",
+      "cite_label": "п. 9.1",
+      "page": null,
+      "source_path": null,
+      "text": "Договор вступает в силу с даты подписания и действует до 31 декабря 2026 г.",
+      "rrf_rank": 4,
+      "rrf_score": 0.012987,
+      "matched_by": [
+        "bm25"
+      ],
+      "scores": {
+        "bm25": 1.0193,
+        "vector": 0.0
+      }
+    },
+    {
+      "chunk_id": "kb-v1:dogovor-postavki-p-17-2024-alfa-treyd-e57e34::п. 1.2#2",
+      "document_id": "dogovor-postavki-p-17-2024-alfa-treyd-e57e34",
+      "document_title": "Договор поставки № П-17/2024 Альфа-Трейд",
+      "document_type": "contract",
+      "document_number": "П-17/2024",
+      "revision_id": null,
+      "effective_from": null,
+      "effective_to": null,
+      "section": "п. 1.2",
+      "cite_label": "п. 1.2",
+      "page": null,
+      "source_path": null,
+      "text": "Наименование, количество, ассортимент и цена Товара согласуются Сторонами в Спецификациях, являющихся неотъемлемой частью договора.",
+      "rrf_rank": 5,
+      "rrf_score": 0.012821,
+      "matched_by": [
+        "bm25"
+      ],
+      "scores": {
+        "bm25": 1.0126,
+        "vector": 0.0
+      }
+    },
+    {
+      "chunk_id": "kb-v1:dogovor-arendy-a-08-2024-severnyy-sklad-824866::п. 6.3#17",
+      "document_id": "dogovor-arendy-a-08-2024-severnyy-sklad-824866",
+      "document_title": "Договор аренды № А-08/2024 Северный Склад",
+      "document_type": "contract",
+      "document_number": "А-08/2024",
+      "revision_id": null,
+      "effective_from": null,
+      "effective_to": null,
+      "section": "п. 6.3",
+      "cite_label": "п. 6.3",
+      "page": null,
+      "source_path": null,
+      "text": "При прекращении договора Арендатор возвращает Помещение по акту в состоянии, в котором он его получил, с учётом нормального износа.",
+      "rrf_rank": 6,
+      "rrf_score": 0.012658,
+      "matched_by": [
+        "bm25"
+      ],
+      "scores": {
+        "bm25": 1.0094,
+        "vector": 0.0
+      }
+    },
+    {
+      "chunk_id": "kb-v1:dogovor-postavki-p-17-2024-alfa-treyd-e57e34::п. 2.2#4",
+      "document_id": "dogovor-postavki-p-17-2024-alfa-treyd-e57e34",
+      "document_title": "Договор поставки № П-17/2024 Альфа-Трейд",
+      "document_type": "contract",
+      "document_number": "П-17/2024",
+      "revision_id": null,
+      "effective_from": null,
+      "effective_to": null,
+      "section": "п. 2.2",
+      "cite_label": "п. 2.2",
+      "page": null,
+      "source_path": null,
+      "text": "Ориентировочная общая цена договора составляет 8 400 000 (восемь миллионов четыреста тысяч) рублей, включая НДС.",
+      "rrf_rank": 7,
+      "rrf_score": 0.0125,
+      "matched_by": [
+        "bm25"
+      ],
+      "scores": {
+        "bm25": 1.0029,
+        "vector": 0.0
+      }
+    },
+    {
+      "chunk_id": "kb-v1:dogovor-postavki-p-17-2024-alfa-treyd-e57e34::п. 9.2#23",
+      "document_id": "dogovor-postavki-p-17-2024-alfa-treyd-e57e34",
+      "document_title": "Договор поставки № П-17/2024 Альфа-Трейд",
+      "document_type": "contract",
+      "document_number": "П-17/2024",
+      "revision_id": null,
+      "effective_from": null,
+      "effective_to": null,
+      "section": "п. 9.2",
+      "cite_label": "п. 9.2",
+      "page": null,
+      "source_path": null,
+      "text": "Каждая из Сторон вправе отказаться от исполнения договора, письменно уведомив другую Сторону не менее чем за 60 (шестьдесят) календарных дней.",
+      "rrf_rank": 8,
+      "rrf_score": 0.012346,
+      "matched_by": [
+        "bm25"
+      ],
+      "scores": {
+        "bm25": 0.9997,
+        "vector": 0.0
+      }
+    },
+    {
+      "chunk_id": "kb-v1:dogovor-postavki-p-17-2024-alfa-treyd-e57e34::п. 1.1#1",
+      "document_id": "dogovor-postavki-p-17-2024-alfa-treyd-e57e34",
+      "document_title": "Договор поставки № П-17/2024 Альфа-Трейд",
+      "document_type": "contract",
+      "document_number": "П-17/2024",
+      "revision_id": null,
+      "effective_from": null,
+      "effective_to": null,
+      "section": "п. 1.1",
+      "cite_label": "п. 1.1",
+      "page": null,
+      "source_path": null,
+      "text": "Поставщик обязуется передать в собственность Покупателя офисную мебель и оборудование (далее — Товар), а Покупатель обязуется принять и оплатить Товар на условиях настоящего договора.",
+      "rrf_rank": 9,
+      "rrf_score": 0.012195,
+      "matched_by": [
+        "bm25"
+      ],
+      "scores": {
+        "bm25": 0.9933,
+        "vector": 0.0
+      }
+    },
+    {
+      "chunk_id": "kb-v1:dogovor-postavki-p-17-2024-alfa-treyd-e57e34::п. 7.5#19",
+      "document_id": "dogovor-postavki-p-17-2024-alfa-treyd-e57e34",
+      "document_title": "Договор поставки № П-17/2024 Альфа-Трейд",
+      "document_type": "contract",
+      "document_number": "П-17/2024",
+      "revision_id": null,
+      "effective_from": null,
+      "effective_to": null,
+      "section": "п. 7.5",
+      "cite_label": "п. 7.5",
+      "page": null,
+      "source_path": null,
+      "text": "Общий размер ответственности каждой из Сторон по настоящему договору, включая неустойки и возмещение убытков, ограничен суммой, равной 50% от общей цены договора, указанной в п. 2.2.",
+      "rrf_rank": 10,
+      "rrf_score": 0.011905,
+      "matched_by": [
+        "bm25"
+      ],
+      "scores": {
+        "bm25": 0.9808,
+        "vector": 0.0
+      }
+    },
+    {
+      "chunk_id": "kb-v1:dogovor-postavki-pt-05-2023-alfa-treyding-df9083::п. 8.1#15",
+      "document_id": "dogovor-postavki-pt-05-2023-alfa-treyding-df9083",
+      "document_title": "Договор поставки № ПТ-05/2023 Альфа-Трейдинг",
+      "document_type": "contract",
+      "document_number": "ПТ-05/2023",
+      "revision_id": null,
+      "effective_from": null,
+      "effective_to": null,
+      "section": "п. 8.1",
+      "cite_label": "п. 8.1",
+      "page": null,
+      "source_path": null,
+      "text": "Договор действует до 31 декабря 2024 г. и автоматически продлевается на каждый следующий календарный год, если ни одна из Сторон не заявит о его прекращении не позднее чем за 30 (тридцать) дней до окончания срока действия.",
+      "rrf_rank": 11,
+      "rrf_score": 0.011628,
+      "matched_by": [
+        "bm25"
+      ],
+      "scores": {
+        "bm25": 0.9747,
+        "vector": 0.0
+      }
+    },
+    {
+      "chunk_id": "kb-v1:dogovor-arendy-a-08-2024-severnyy-sklad-824866::п. 2.2#5",
+      "document_id": "dogovor-arendy-a-08-2024-severnyy-sklad-824866",
+      "document_title": "Договор аренды № А-08/2024 Северный Склад",
+      "document_type": "contract",
+      "document_number": "А-08/2024",
+      "revision_id": null,
+      "effective_from": null,
+      "effective_to": null,
+      "section": "п. 2.2",
+      "cite_label": "п. 2.2",
+      "page": null,
+      "source_path": null,
+      "text": "Договор заключён на неопределённый срок.",
+      "rrf_rank": 12,
+      "rrf_score": 0.011111,
+      "matched_by": [
+        "bm25"
+      ],
+      "scores": {
+        "bm25": 0.9522,
+        "vector": 0.0
+      }
+    }
+  ]
+}
