@@ -1,0 +1,116 @@
+{
+  "request_id": "req-reg",
+  "corpus_version": "kb-v1",
+  "question": "Договор на 12 млн рублей заключали в августе 2024 года. Нужно ли было одобрение генерального директора?",
+  "event_date": null,
+  "chunks": [
+    {
+      "chunk_id": "kb-v1:reglament-2025::п. 2.4#2",
+      "document_id": "reglament-2025",
+      "document_title": "Регламент согласования договоров ред 2025",
+      "document_type": "internal",
+      "document_number": null,
+      "revision_id": null,
+      "effective_from": null,
+      "effective_to": null,
+      "section": "п. 2.4",
+      "cite_label": "Регламент согласования договоров ред 2025",
+      "page": null,
+      "source_path": null,
+      "text": "2.4. Договоры на сумму свыше 15 000 000 (пятнадцати миллионов) рублей подлежат одобрению генеральным директором до подписания.",
+      "rrf_rank": 2,
+      "rrf_score": 0.03,
+      "matched_by": [
+        "bm25",
+        "vector"
+      ],
+      "scores": {
+        "bm25": 9.0,
+        "vector": 0.7
+      },
+      "rerank_score": 0.45,
+      "rank": 2
+    },
+    {
+      "chunk_id": "kb-v1:reglament-2023::п. 2.4#1",
+      "document_id": "reglament-2023",
+      "document_title": "Регламент согласования договоров ред 2023 (утратил силу)",
+      "document_type": "internal",
+      "document_number": null,
+      "revision_id": null,
+      "effective_from": null,
+      "effective_to": null,
+      "section": "п. 2.4",
+      "cite_label": "Регламент согласования договоров ред 2023 (утратил силу)",
+      "page": null,
+      "source_path": null,
+      "text": "2.4. Договоры на сумму свыше 10 000 000 (десяти миллионов) рублей подлежат одобрению генеральным директором до подписания.",
+      "rrf_rank": 1,
+      "rrf_score": 0.03,
+      "matched_by": [
+        "bm25",
+        "vector"
+      ],
+      "scores": {
+        "bm25": 9.0,
+        "vector": 0.7
+      },
+      "rerank_score": 0.9,
+      "rank": 1
+    },
+    {
+      "chunk_id": "kb-v1:reglament-2023::шапка#3",
+      "document_id": "reglament-2023",
+      "document_title": "Регламент согласования договоров ред 2023 (утратил силу)",
+      "document_type": "internal",
+      "document_number": null,
+      "revision_id": null,
+      "effective_from": null,
+      "effective_to": null,
+      "section": "шапка",
+      "cite_label": "Регламент согласования договоров ред 2023 (утратил силу)",
+      "page": null,
+      "source_path": null,
+      "text": "РЕДАКЦИЯ УТРАТИЛА СИЛУ с 01.03.2025 в связи с утверждением новой редакции регламента (приказ № 14-П от 17.02.2025).\nРЕГЛАМЕНТ СОГЛАСОВАНИЯ ДОГОВОРОВ ООО «МЕРИДИАН»\nРедакция от 10.01.2023",
+      "rrf_rank": 3,
+      "rrf_score": 0.03,
+      "matched_by": [
+        "bm25",
+        "vector"
+      ],
+      "scores": {
+        "bm25": 9.0,
+        "vector": 0.7
+      },
+      "rerank_score": 0.3,
+      "rank": 3
+    },
+    {
+      "chunk_id": "kb-v1:reglament-2025::шапка#4",
+      "document_id": "reglament-2025",
+      "document_title": "Регламент согласования договоров ред 2025",
+      "document_type": "internal",
+      "document_number": null,
+      "revision_id": null,
+      "effective_from": null,
+      "effective_to": null,
+      "section": "шапка",
+      "cite_label": "Регламент согласования договоров ред 2025",
+      "page": null,
+      "source_path": null,
+      "text": "РЕГЛАМЕНТ СОГЛАСОВАНИЯ ДОГОВОРОВ ООО «МЕРИДИАН»\nУтверждён приказом генерального директора № 14-П от 17.02.2025\nРедакция от 01.03.2025. Действует с 01.03.2025. Редакция от 10.01.2023 утрачивает силу.",
+      "rrf_rank": 4,
+      "rrf_score": 0.03,
+      "matched_by": [
+        "bm25",
+        "vector"
+      ],
+      "scores": {
+        "bm25": 9.0,
+        "vector": 0.7
+      },
+      "rerank_score": 0.225,
+      "rank": 4
+    }
+  ]
+}

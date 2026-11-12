@@ -1,0 +1,89 @@
+{
+  "request_id": "req-rent",
+  "corpus_version": "kb-v1",
+  "question": "Почему по договору с ООО «Северный Склад» арендная плата 500 000 рублей в месяц?",
+  "event_date": null,
+  "chunks": [
+    {
+      "chunk_id": "kb-v1:dogovor-arendy-a-08-2024::п. 3.1#1",
+      "document_id": "dogovor-arendy-a-08-2024",
+      "document_title": "Договор аренды № А-08/2024 Северный Склад",
+      "document_type": "contract",
+      "document_number": "А-08/2024",
+      "revision_id": null,
+      "effective_from": null,
+      "effective_to": null,
+      "section": "п. 3.1",
+      "cite_label": "Договор аренды № А-08/2024 Северный Склад",
+      "page": null,
+      "source_path": null,
+      "text": "3.1. Арендная плата составляет 450 000 (четыреста пятьдесят тысяч) рублей в месяц, включая НДС.",
+      "rrf_rank": 1,
+      "rrf_score": 0.03,
+      "matched_by": [
+        "bm25",
+        "vector"
+      ],
+      "scores": {
+        "bm25": 9.0,
+        "vector": 0.7
+      },
+      "rerank_score": 0.9,
+      "rank": 1
+    },
+    {
+      "chunk_id": "kb-v1:dogovor-arendy-a-08-2024::п. 3.2#2",
+      "document_id": "dogovor-arendy-a-08-2024",
+      "document_title": "Договор аренды № А-08/2024 Северный Склад",
+      "document_type": "contract",
+      "document_number": "А-08/2024",
+      "revision_id": null,
+      "effective_from": null,
+      "effective_to": null,
+      "section": "п. 3.2",
+      "cite_label": "Договор аренды № А-08/2024 Северный Склад",
+      "page": null,
+      "source_path": null,
+      "text": "3.2. Арендная плата вносится ежемесячно, не позднее 5-го числа текущего месяца.",
+      "rrf_rank": 2,
+      "rrf_score": 0.03,
+      "matched_by": [
+        "bm25",
+        "vector"
+      ],
+      "scores": {
+        "bm25": 9.0,
+        "vector": 0.7
+      },
+      "rerank_score": 0.45,
+      "rank": 2
+    },
+    {
+      "chunk_id": "kb-v1:dogovor-arendy-a-08-2024::п. 4.3#3",
+      "document_id": "dogovor-arendy-a-08-2024",
+      "document_title": "Договор аренды № А-08/2024 Северный Склад",
+      "document_type": "contract",
+      "document_number": "А-08/2024",
+      "revision_id": null,
+      "effective_from": null,
+      "effective_to": null,
+      "section": "п. 4.3",
+      "cite_label": "Договор аренды № А-08/2024 Северный Склад",
+      "page": null,
+      "source_path": null,
+      "text": "4.3. Арендодатель обязан обеспечить беспрепятственный доступ Арендатора и его транспорта к Помещению круглосуточно.",
+      "rrf_rank": 3,
+      "rrf_score": 0.03,
+      "matched_by": [
+        "bm25",
+        "vector"
+      ],
+      "scores": {
+        "bm25": 9.0,
+        "vector": 0.7
+      },
+      "rerank_score": 0.3,
+      "rank": 3
+    }
+  ]
+}

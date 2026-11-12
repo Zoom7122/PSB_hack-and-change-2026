@@ -1,0 +1,35 @@
+{
+  "request_id": "req-none",
+  "corpus_version": "kb-v1",
+  "question": "Какой размер пособия по беременности и родам?",
+  "event_date": null,
+  "chunks": [
+    {
+      "chunk_id": "kb-v1:tk-st70::ч. 5#1",
+      "document_id": "tk-st70",
+      "document_title": "ТК РФ, ст. 70",
+      "document_type": "law",
+      "document_number": null,
+      "revision_id": null,
+      "effective_from": null,
+      "effective_to": null,
+      "section": "ч. 5",
+      "cite_label": "ТК РФ, ст. 70",
+      "page": null,
+      "source_path": null,
+      "text": "Статья 70 изменена с 1 сентября 2026 г. - Федеральный закон от 9 апреля 2026 г. № 91-ФЗ\nСрок испытания не может превышать трех месяцев, а для руководителей организаций и их заместителей, главных бухгалтеров и их заместителей - шести месяцев, если иное не установлено федеральным законом.",
+      "rrf_rank": 1,
+      "rrf_score": 0.03,
+      "matched_by": [
+        "bm25",
+        "vector"
+      ],
+      "scores": {
+        "bm25": 9.0,
+        "vector": 0.7
+      },
+      "rerank_score": 0.9,
+      "rank": 1
+    }
+  ]
+}
