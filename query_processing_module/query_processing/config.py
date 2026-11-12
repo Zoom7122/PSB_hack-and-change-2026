@@ -41,20 +41,74 @@ class LLMSettings:
 
     @classmethod
     def from_environment(cls) -> "LLMSettings":
-        """Читает .env без переопределения переменных процесса."""
+        """Читает параметры платформы и локальный .env с приоритетом процесса."""
+        process_environment = dict(os.environ)
         load_dotenv(override=False)
+        dotenv_environment = dict(os.environ)
         try:
-            temperature = os.getenv("LLM_TEMPERATURE", "0").strip()
-            max_tokens = os.getenv("LLM_MAX_TOKENS", "1500").strip()
+            base_url = _setting_value(
+                ("LLM_BASE_URL", "OPENAI_BASE_URL"),
+                process_environment,
+                dotenv_environment,
+            )
+            api_key = _setting_value(
+                ("LLM_API_KEY", "OPENAI_API_KEY"),
+                process_environment,
+                dotenv_environment,
+            )
+            model = _setting_value(
+                ("LLM_MODEL", "OPENAI_MODEL", "GEN_MODEL"),
+                process_environment,
+                dotenv_environment,
+            )
+            temperature = _setting_value(
+                ("TEMPERATURE", "LLM_TEMPERATURE"),
+                process_environment,
+                dotenv_environment,
+                default="0",
+            )
+            max_tokens = _setting_value(
+                ("MAX_TOKENS", "LLM_MAX_TOKENS"),
+                process_environment,
+                dotenv_environment,
+                default="1500",
+            )
+            timeout = _setting_value(
+                ("LLM_TIMEOUT",),
+                process_environment,
+                dotenv_environment,
+                default="60",
+            )
             return cls(
-                base_url=os.getenv("LLM_BASE_URL", "").strip(),
-                api_key=os.getenv("LLM_API_KEY", "").strip(),
-                model=os.getenv("LLM_MODEL", "").strip(),
+                base_url=base_url,
+                api_key=api_key,
+                model=model,
                 temperature=float(temperature) if temperature else None,
                 max_tokens=int(max_tokens) if max_tokens else None,
-                timeout=float(os.getenv("LLM_TIMEOUT", "60")),
+                timeout=float(timeout),
             )
         except (TypeError, ValueError) as exc:
             if isinstance(exc, ConfigurationError):
                 raise
             raise ConfigurationError("Invalid numeric LLM configuration") from None
+
+
+def _setting_value(
+    names: tuple[str, ...],
+    process_environment: dict[str, str],
+    dotenv_environment: dict[str, str],
+    default: str = "",
+) -> str:
+    """Выбирает первый заданный alias, сохраняя приоритет переменных процесса."""
+    for source in (process_environment, dotenv_environment):
+        found_empty = False
+        for name in names:
+            if name not in source:
+                continue
+            value = source[name].strip()
+            if value:
+                return value
+            found_empty = True
+        if found_empty:
+            return ""
+    return default

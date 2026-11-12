@@ -156,6 +156,35 @@ class ValidationTests(unittest.TestCase):
         with self.assertRaises(ConfigurationError):
             LLMSettings(base_url="invalid", api_key="secret", model="model")
 
+    def test_platform_environment_aliases_override_dotenv_values(self):
+        """Выбирает алиасы платформы выше локальных значений .env."""
+        environment = {
+            "OPENAI_BASE_URL": "https://platform.example/v1",
+            "OPENAI_API_KEY": "platform-key",
+            "GEN_MODEL": "platform-model",
+            "TEMPERATURE": "0.4",
+            "MAX_TOKENS": "123",
+        }
+
+        def add_local_values(override=False):
+            """Подставляет значения .env, не перезаписывая процесс."""
+            os.environ.setdefault("LLM_BASE_URL", "https://local.example/v1")
+            os.environ.setdefault("LLM_API_KEY", "local-key")
+            os.environ.setdefault("LLM_MODEL", "local-model")
+            os.environ.setdefault("LLM_TEMPERATURE", "0.1")
+            os.environ.setdefault("LLM_MAX_TOKENS", "10")
+
+        with patch.dict(os.environ, environment, clear=True), patch(
+            "query_processing.config.load_dotenv", side_effect=add_local_values
+        ):
+            settings = LLMSettings.from_environment()
+
+        self.assertEqual(settings.base_url, environment["OPENAI_BASE_URL"])
+        self.assertEqual(settings.api_key, environment["OPENAI_API_KEY"])
+        self.assertEqual(settings.model, environment["GEN_MODEL"])
+        self.assertEqual(settings.temperature, 0.4)
+        self.assertEqual(settings.max_tokens, 123)
+
 
 class ClientTests(unittest.IsolatedAsyncioTestCase):
     async def test_optional_params_are_not_sent(self):
