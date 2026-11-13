@@ -286,6 +286,9 @@ def _fill_company_meta(meta: DocMeta, doc: RawDoc, lines: list[str], head: str) 
         lines_for_date: list[str] = []
     else:
         lines_for_date = lines
+    if meta.kind == "доп.соглашение":
+        lines_for_date = [line for line in lines_for_date
+                          if not re.search(r"к\s+договору", line, re.IGNORECASE)]
     for line in lines_for_date[:6]:
         m = re.search(r"от\s+(\d{2}\.\d{2}\.\d{4})", line)
         if m:
@@ -323,6 +326,20 @@ def _fill_company_meta(meta: DocMeta, doc: RawDoc, lines: list[str], head: str) 
             meta.parent_contract = normalize_number(m.group(1))
 
 
+def _regulation_title(meta: DocMeta, lines: list[str]) -> str:
+    """Берёт имя регламента из самого документа вместо фиксированной организации."""
+    header = next((line.strip() for line in lines if re.match(r"^регламент\b", line.strip(), re.I)), "")
+    if not header:
+        return re.split(r"\s+ред(?:акция)?\b", meta.filename_title, flags=re.I)[0].strip() or "Регламент"
+    pieces = re.split(r"\bООО\b", header, maxsplit=1, flags=re.I)
+    title = pieces[0].strip().capitalize()
+    if len(pieces) == 2:
+        company = re.sub(r"«([^»]+)»", lambda match: "«" + (
+            match.group(1).capitalize() if match.group(1).isupper() else match.group(1)) + "»", pieces[1].strip())
+        title += " ООО " + company
+    return title
+
+
 def build_citation_title(meta: DocMeta, lines: list[str]) -> str:
     """Собрать короткое юридически корректное название для ссылки в ответе.
 
@@ -335,7 +352,7 @@ def build_citation_title(meta: DocMeta, lines: list[str]) -> str:
 
     # --- регламенты: имя + редакция + статус -------------------------------
     if meta.kind == "регламент":
-        title = "Регламент согласования договоров ООО «Меридиан»"
+        title = _regulation_title(meta, lines)
         if meta.edition:
             title += f" (ред. от {meta.edition}"
             title += ", утратил силу)" if meta.status != "действует" else ")"

@@ -39,6 +39,7 @@ class Draft(BaseModel):
     model_config = ConfigDict(extra="forbid")
     status: Literal["answered", "insufficient"]
     claims: list[Claim]
+    reason: StrictStr | None = Field(default=None, max_length=800)
 
     @model_validator(mode="after")
     def check_status(self) -> "Draft":

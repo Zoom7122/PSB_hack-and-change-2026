@@ -123,49 +123,45 @@ class HybridSearcher:
 
     # ------------------------------------------------------------- поиск
     def search(self, query_text: str, *, final_k: int = 6, use_rerank: bool = True) -> list[FusedHit]:
-        """Найти фрагменты: BM25 + векторы → RRF → реранк → final_k.
+        """Ищет один вопрос, переиспользуя общий путь пакетного поиска."""
+        candidates = self.search_many([query_text], final_k=max(final_k, config.RERANK_CANDIDATES))[0]
+        if use_rerank:
+            candidates = self.rerank_candidates(query_text, candidates)
+        return candidates[:final_k]
 
-        query_text — уже подготовленный поисковый текст (для диалогов см.
-        query_prep.prepare_search_query).
-        """
-        tokens = textproc.tokenize_query(query_text)
-
-        # 1) лексический поиск
-        lexical_hits = self.lexical.search_tokens(tokens, k=config.BM25_TOP_K)
-        bm25_positions = [hit.position for hit in lexical_hits]
-
-        # 2) векторный поиск — только если есть клиент для эмбеддингов
-        vector_hits = []
+    def search_many(self, queries: list[str], *, final_k: int = 30) -> list[list[FusedHit]]:
+        """Кодирует формулировки одним батчем и возвращает списки без реранжа."""
+        query_vectors = [None] * len(queries)
         if self.client is not None:
             try:
-                # embed_query, а не embed: у части моделей запрос кодируется
-                # с префиксом-инструкцией (см. config.EMB_QUERY_PREFIX).
-                # getattr — для совместимости с любым клиентом, у которого есть
-                # только embed(); иначе поиск молча терял бы векторы.
-                embed_query = getattr(self.client, "embed_query", None)
-                query_vector = (embed_query(query_text) if embed_query
-                                else self.client.embed([query_text])[0])
-                vector_hits = self.vectors.search_vector(query_vector, k=config.VECTOR_TOP_K)
-            except Exception as exc:      # noqa: BLE001
-                # Деградация: векторы недоступны — продолжаем на одной лексике.
-                # Это лучше, чем упасть всем прогоном из-за одной сетевой ошибки.
-                print(f"[hybrid] векторы недоступны, только BM25: {type(exc).__name__}: {exc}")
+                texts = [config.EMB_QUERY_PREFIX + query for query in queries]
+                query_vectors = self.client.embed(texts)
+                if len(query_vectors) != len(queries):
+                    raise ValueError("Число векторов не совпадает с числом запросов")
+            except Exception as exc:
+                print(f"[hybrid] эмбеддинги запросов недоступны ({type(exc).__name__}); BM25")
+                query_vectors = [None] * len(queries)
+        rankings = []
+        for query, vector in zip(queries, query_vectors):
+            lexical_hits = self.lexical.search(query, k=config.BM25_TOP_K)
+            try:
+                vector_hits = self.vectors.search_vector(vector, k=config.VECTOR_TOP_K) if vector is not None else []
+            except Exception as exc:
+                print(f"[hybrid] векторный поиск недоступен ({type(exc).__name__}); BM25")
+                vector_hits = []
+            rankings.append(self._fuse(lexical_hits, vector_hits)[:final_k])
+        return rankings
 
-        vector_positions = [hit.position for hit in vector_hits]
-
-        # 3) объединение по местам
-        # взвешенное слияние: векторы — основной сигнал, BM25 — уточняющий
+    def _fuse(self, lexical_hits: list, vector_hits: list) -> list[FusedHit]:
+        """Объединяет сигналы; без векторов сохраняет всю лексическую выдачу."""
         fused_scores = reciprocal_rank_fusion(
-            [bm25_positions, vector_positions],
-            weights=[config.BM25_WEIGHT, 1.0],
-            depths=[config.BM25_FUSION_DEPTH, None],
+            [[hit.position for hit in lexical_hits], [hit.position for hit in vector_hits]],
+            weights=[config.BM25_WEIGHT if vector_hits else 1.0, 1.0],
+            depths=[config.BM25_FUSION_DEPTH if vector_hits else None, None],
         )
-        if not fused_scores:
-            return []
-
         bm25_map = {hit.position: hit for hit in lexical_hits}
         vector_map = {hit.position: hit for hit in vector_hits}
-
+        vector_ranks = {hit.position: rank for rank, hit in enumerate(vector_hits, start=1)}
         candidates: list[FusedHit] = []
         for position, score in fused_scores.items():
             candidates.append(
@@ -173,23 +169,23 @@ class HybridSearcher:
                     chunk=self.chunks[position],
                     rrf_score=score,
                     bm25_rank=bm25_map[position].rank if position in bm25_map else None,
-                    vector_rank=next(
-                        (rank for rank, hit in enumerate(vector_hits, start=1) if hit.position == position),
-                        None,
-                    ),
+                    vector_rank=vector_ranks.get(position),
                     bm25_score=bm25_map[position].score if position in bm25_map else 0.0,
                     vector_score=vector_map[position].score if position in vector_map else 0.0,
                 )
             )
         candidates.sort(key=lambda hit: hit.rrf_score, reverse=True)
 
-        # 4) реранж: пересматриваем первых RERANK_CANDIDATES
-        if use_rerank and self.client is not None and len(candidates) > 1:
+        return candidates
+
+    def rerank_candidates(self, query_text: str, candidates: list[FusedHit]) -> list[FusedHit]:
+        """Ранжирует объединённую выдачу по исходному смыслу вопроса один раз."""
+        if self.client is not None and len(candidates) > 1:
             try:
                 candidates = self._rerank(query_text, candidates)
             except Exception as exc:      # noqa: BLE001 — последний рубеж защиты
                 print(f"[hybrid] реранж отключён из-за ошибки ({type(exc).__name__}); порядок RRF")
-        return candidates[:final_k]
+        return candidates
 
     # ------------------------------------------------------------ реранк
     def _rerank(self, query_text: str, candidates: list[FusedHit]) -> list[FusedHit]:
@@ -204,7 +200,7 @@ class HybridSearcher:
         if len(head) < 2:
             return candidates
 
-        documents = [f"{hit.chunk.prefix}\n{hit.chunk.label}. {hit.chunk.body[:800]}" for hit in head]
+        documents = [textproc.evidence_text(hit.chunk.text) for hit in head]
         mode = config.RERANK_MODE
         if mode == "auto":
             mode = "endpoint" if config.RERANK_MODEL else "llm"
@@ -218,7 +214,7 @@ class HybridSearcher:
                 # что угодно (ValueError при разборе ответа, ошибку SDK, таймаут).
                 # Реранж — улучшение качества, а не обязательный шаг: при сбое
                 # продолжаем с порядком RRF.
-                print(f"[hybrid] /rerank недоступен ({type(exc).__name__}: {exc}); пробую реранж через chat")
+                print(f"[hybrid] /rerank недоступен ({type(exc).__name__}); пробую реранж через chat")
                 mode = "llm"
 
         if mode == "llm":

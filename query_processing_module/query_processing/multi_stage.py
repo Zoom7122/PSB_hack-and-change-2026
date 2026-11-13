@@ -7,6 +7,7 @@ from pydantic import StrictBool, StrictStr, ValidationError, model_validator
 
 from .contracts import QueryRequest, SearchRequest, StrictModel
 from .llm_client import LLMClient
+from .json_utils import json_object
 from .prompts import RETRY_PROMPT
 from .validator import InvalidLLMResponse
 
@@ -88,7 +89,7 @@ class StageRunner:
         while True:
             content = await self._llm_client.complete(messages)
             try:
-                return schema.model_validate_json(content)
+                return schema.model_validate(json_object(content))
             except (ValidationError, ValueError):
                 if not self._retry_available:
                     raise InvalidLLMResponse("LLM response does not match the expected JSON contract") from None

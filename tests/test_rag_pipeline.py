@@ -252,7 +252,7 @@ class IntegrationTests(unittest.TestCase):
         request["filters"]["document_type"] = "contract"
         sources = retrieve(corpus, team, "Исходный вопрос", request)
         self.assertEqual(len(searcher.queries), 4)
-        self.assertEqual(len(sources), 1)
+        self.assertEqual(len([item for item in sources if item["selection_reason"] == "retrieved"]), 1)
         self.assertEqual(len(sources[0]["matched_queries"]), 4)
         self.assertEqual(sources[0]["matched_by"], ["bm25"])
         self.assertEqual(sources[0]["document_number"], "П-17/2024")
@@ -296,7 +296,7 @@ class IntegrationTests(unittest.TestCase):
         request = {"standalone_query": "Второй", "search_queries": [], "filters": {}}
         result = retrieve(corpus, team, "Первый", request, limit=2)
         self.assertEqual([item["chunk_id"] for item in result],
-                         [corpus.chunks[0].chunk_id, corpus.chunks[2].chunk_id])
+                         [corpus.chunks[2].chunk_id, corpus.chunks[0].chunk_id])
 
     def test_verify_cli_writes_repaired_copies(self):
         """Отдельная команда исправляет ошибочную ссылку и сохраняет копии файлов."""

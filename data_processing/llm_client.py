@@ -61,6 +61,7 @@ class LLMClient:
     """
 
     timeout: float = DEFAULT_TIMEOUT
+    deadline: float | None = None
 
     def __post_init__(self) -> None:
         self._client = httpx.Client(timeout=self.timeout)
@@ -91,8 +92,12 @@ class LLMClient:
 
         last_error = ""
         for attempt in range(1, MAX_RETRIES + 1):
+            remaining = self.deadline - time.monotonic() if self.deadline else self.timeout
+            if remaining <= 0:
+                raise LLMError("Исчерпан бюджет времени запросов")
             try:
-                response = self._client.post(url, headers=self._headers(api_key), json=payload)
+                response = self._client.post(url, headers=self._headers(api_key), json=payload,
+                                             timeout=min(self.timeout, remaining))
             except httpx.HTTPError as exc:
                 last_error = f"{type(exc).__name__}: {exc}"
             else:
@@ -103,12 +108,15 @@ class LLMClient:
                         raise LLMError(f"Ответ не является JSON: {url}: {exc}") from exc
                 if response.status_code in (400, 401, 403, 404, 422):
                     raise LLMError(
-                        f"{response.status_code} при запросе {url}: {response.text[:300]}"
+                        f"API status={response.status_code}"
                     )
-                last_error = f"HTTP {response.status_code}: {response.text[:200]}"
+                last_error = f"HTTP {response.status_code}"
 
             if attempt < MAX_RETRIES:
-                time.sleep(RETRY_PAUSE * attempt)      # 1.5с, 3с, 4.5с
+                pause = RETRY_PAUSE * attempt
+                if self.deadline:
+                    pause = min(pause, max(0, self.deadline - time.monotonic()))
+                time.sleep(pause)
         raise LLMError(f"Не удалось выполнить запрос {url} после {MAX_RETRIES} попыток: {last_error}")
 
     # ------------------------------------------------------------- генерация
@@ -212,7 +220,7 @@ class LLMClient:
         """
         import re
 
-        listing = "\n".join(f"[{i}] {doc[:400]}" for i, doc in enumerate(documents))
+        listing = "\n".join(f"[{i}] {doc[:1800]}" for i, doc in enumerate(documents))
         messages = [
             {
                 "role": "system",

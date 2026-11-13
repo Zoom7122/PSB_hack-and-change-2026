@@ -87,7 +87,7 @@ class LexicalIndex:
         # Шапка содержит номер документа, ИНН и дату, и именно по ним юрист
         # часто формулирует запрос («что сказано в договоре П-17/2024»).
         self.corpus_tokens: list[list[str]] = [
-            textproc.tokenize_document(chunk.text) for chunk in chunks
+            textproc.tokenize_document(textproc.evidence_text(chunk.text)) for chunk in chunks
         ]
         self.bm25 = BM25Okapi(self.corpus_tokens, k1=k1, b=b)
         self.k1 = k1

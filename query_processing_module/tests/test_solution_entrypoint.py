@@ -15,11 +15,11 @@ from query_processing_module.query_processing.config import LLMSettings
 
 
 class BackendApiTests(unittest.TestCase):
-    def test_prepare_query_trims_and_lowercases_question(self):
+    def test_prepare_query_trims_and_preserves_question(self):
         """Обрезает краевые пробелы и проверяет запрос по QueryRequest."""
         request = prepare_query(" \tДОГОВОР расторгнут?  \n")
 
-        self.assertEqual(request.question, "договор расторгнут?")
+        self.assertEqual(request.question, "ДОГОВОР расторгнут?")
         self.assertEqual(request.history, [])
 
     def test_prepare_query_rejects_blank_question(self):
@@ -84,6 +84,7 @@ class SolutionEntrypointTests(unittest.TestCase):
                 "QUERY_PROCESSING_MODE": "single",
                 "MAX_WORKERS": "1",
                 "ARTIFACTS_DIR": str(root / "artifacts"),
+                "LLM_LOG_RESPONSES": "1",
             }
             FakeQueryService.last_request = None
             FakeQueryService.last_response = None
@@ -107,7 +108,7 @@ class SolutionEntrypointTests(unittest.TestCase):
                 rows = list(csv.DictReader(submission_file))
 
         self.assertEqual(rows, [{"id": "case-1", "answer": "Уточните вопрос"}])
-        self.assertEqual(FakeQueryService.last_request.question, "договор расторгнут?")
+        self.assertEqual(FakeQueryService.last_request.question, "ДОГОВОР расторгнут?")
         self.assertEqual(FakeQueryService.last_response, "raw model answer service-secret")
         self.assertTrue(fake_client.closed)
         fake_search.return_value.close.assert_called_once()

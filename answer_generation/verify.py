@@ -58,7 +58,8 @@ async def _existing_errors(client, record: dict, answer: str, corpus: Corpus) ->
         request = record.get("search_request") or {}
         event_date = (request.get("filters") or {}).get("event_date")
         rendered, errors = await check_claims(
-            client, record["question"], claims, record.get("sources", []), corpus, event_date
+            client, record.get("resolved_question", record["question"]), claims,
+            record.get("sources", []), corpus, event_date
         )
         if not errors and rendered != answer:
             errors.append("Ответ не совпадает с проверенными утверждениями и ссылками")
@@ -82,9 +83,10 @@ async def _repair_record(client, record: dict, corpus: Corpus, team, retries: in
     request = record.get("search_request") or {}
     sources = _trusted_sources(record, corpus)
     if not sources and request:
-        sources = await asyncio.to_thread(retrieve, corpus, team, record["question"], request)
+        question = record.get("resolved_question") or request.get("standalone_query") or record["question"]
+        sources = await asyncio.to_thread(retrieve, corpus, team, question, request)
     event_date = (request.get("filters") or {}).get("event_date")
-    result = await generate_verified(client, record["question"], sources, corpus,
+    result = await generate_verified(client, record.get("resolved_question", record["question"]), sources, corpus,
                                      event_date=event_date, retries=retries)
     return {**record, **result, "corpus_version": corpus.version}
 

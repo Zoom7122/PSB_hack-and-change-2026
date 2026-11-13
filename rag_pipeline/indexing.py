@@ -6,6 +6,7 @@ import argparse
 import json
 import logging
 import os
+import time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -77,8 +78,10 @@ def create_search(corpus: Corpus, directory: Path, *, force: bool = False,
     try:
         if not config.EMB_BASE_URL or not config.EMB_API_KEY:
             raise ValueError("Не настроены адрес и ключ эмбеддингов")
-        client = LLMClient()
+        client = LLMClient(deadline=time.monotonic() + float(os.getenv("INDEX_TIME_BUDGET_SEC", "240")))
         vectors = build_vectors(corpus, directory, client, force=force)
+        client.deadline = None
+        LOGGER.info("Поиск: hybrid; модель=%s; фрагментов=%s", config.EMB_MODEL, len(corpus.chunks))
         return TeamSearch(hybrid.HybridSearcher(lexical, vectors, client), client)
     except Exception as exc:
         if client is not None:

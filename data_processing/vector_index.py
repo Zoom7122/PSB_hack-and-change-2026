@@ -38,10 +38,11 @@ from pathlib import Path
 import numpy as np
 
 if __package__:
-    from . import config
+    from . import config, textproc
     from .chunking import Chunk
 else:
     import config
+    import textproc
     from chunking import Chunk
 
 
@@ -175,7 +176,7 @@ def build_vector_index(chunks: list[Chunk], client, *, batch_size: int | None = 
     if not chunks:
         raise ValueError("Нечего индексировать: список фрагментов пуст")
 
-    texts = [chunk.text for chunk in chunks]
+    texts = [textproc.evidence_text(chunk.text) for chunk in chunks]
     if verbose:
         print(f"Считаю эмбеддинги: {len(texts)} фрагментов, модель {config.EMB_MODEL}")
 
@@ -185,6 +186,8 @@ def build_vector_index(chunks: list[Chunk], client, *, batch_size: int | None = 
     vectors = (embed_documents(texts, batch_size=batch_size) if embed_documents
                else client.embed(texts, batch_size=batch_size))
     matrix = np.asarray(vectors, dtype=np.float32)
+    if matrix.ndim != 2 or matrix.shape[0] != len(chunks) or not np.isfinite(matrix).all():
+        raise ValueError("Сервис вернул неполную или некорректную матрицу эмбеддингов")
 
     # Нормировка ещё раз: даже если провайдер вернул ненормированные векторы,
     # дальше всё будет работать в режиме «косинус = скалярное произведение».

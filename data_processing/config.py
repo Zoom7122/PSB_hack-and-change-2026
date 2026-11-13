@@ -115,7 +115,7 @@ BM25_WEIGHT = float(_env("BM25_WEIGHT", default="0.1"))
 # BM25 надёжен в начале списка и шумит в хвосте: 20-е место у него часто
 # случайное совпадение по одному общему слову. Учитываем только первые N мест.
 BM25_FUSION_DEPTH = int(_env("BM25_FUSION_DEPTH", default="5"))
-RERANK_CANDIDATES = int(_env("RERANK_CANDIDATES", default="15"))
+RERANK_CANDIDATES = int(_env("RERANK_CANDIDATES", default="24"))
 
 # --- генерация: параметры ---------------------------------------------------
 # --- ответ (шаг 6) ----------------------------------------------------------
