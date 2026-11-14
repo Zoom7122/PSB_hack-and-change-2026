@@ -1,0 +1,15 @@
+services:
+  web:
+    build: .
+    image: psb-legal-assistant
+    ports:
+      - "8000:8000"
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - history:/app/var
+    restart: unless-stopped
+
+volumes:
+  history:

@@ -6,3 +6,5 @@ __pycache__/
 artifacts/
 dist/
 submission.verified.csv
+*.sqlite3
+answer_trace.jsonl

@@ -739,6 +739,15 @@ class Retriever:
             pool.shutdown(wait=False, cancel_futures=True)
         return [v for part in results for v in part]  # type: ignore[union-attr]
 
+    def embed_query(self, question: Question) -> None:
+        """Эмбеддинг одного вопроса (веб-чат: вопросы приходят по одному)."""
+        if self.matrix is None or self.api is None:
+            return
+        try:
+            self.query_vectors[question.qid] = self.api.embed([question.search_text[:2000]])[0]
+        except Exception as exc:  # noqa: BLE001 - без вектора остаётся BM25
+            LOG.warning("Эмбеддинг вопроса недоступен: %s", exc)
+
     # -- сущности -------------------------------------------------------------
     def entity_filter(self, question: Question) -> tuple[list[int], set[int], list[str]]:
         """Документы контрагента или номера, названного в вопросе (последняя реплика важнее)."""
@@ -1063,6 +1072,8 @@ class Outcome:
     docs: list[str] = field(default_factory=list)
     issues: list[str] = field(default_factory=list)
     seconds: float = 0.0
+    doc_ids: list[int] = field(default_factory=list)       # документы, переданные модели
+    top_chunks: list[int] = field(default_factory=list)    # лучшие фрагменты выдачи (для показа источников)
 
 
 class Assistant:
@@ -1102,12 +1113,21 @@ class Assistant:
         rounds = max(1.0, pending / max(1, self.settings.workers))
         hurry = left < rounds * self._avg_duration() * 1.15
         if left < 20 or self.api is None:
-            return Outcome(question.qid, self._extractive(question), "extractive-deadline")
+            retrieval = self.retriever.search(question, allow_rerank=False)
+            outcome = Outcome(question.qid, self._extractive(question, retrieval),
+                              "extractive-deadline" if self.api else "extractive-no-llm")
+            outcome.doc_ids, outcome.top_chunks = build_context(self.kb, retrieval).doc_ids[:3], retrieval.ranked[:20]
+            return outcome
         retrieval = self.retriever.search(question, allow_rerank=not hurry)
         context = build_context(self.kb, retrieval)
-        docs = [self.kb.documents[i].title for i in context.doc_ids]
         if not context.doc_ids:
             return Outcome(question.qid, NO_CONTEXT_ANSWER, "no-context")
+        outcome = self._generate(question, retrieval, context, hurry)
+        outcome.doc_ids, outcome.top_chunks = list(context.doc_ids), retrieval.ranked[:20]
+        return outcome
+
+    def _generate(self, question: Question, retrieval: Retrieval, context: Context, hurry: bool) -> Outcome:
+        docs = [self.kb.documents[i].title for i in context.doc_ids]
         system = SYSTEM_PROMPT + (HURRY_SUFFIX if hurry else "")
         messages = [{"role": "system", "content": system},
                     {"role": "user", "content": user_message(question, context, self.today)}]

@@ -3,60 +3,223 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ПСБ — API Gateway (демо)</title>
+  <title>ПСБ — Юридический ассистент</title>
   <style>
-    :root { color-scheme:light; font-family:system-ui,Arial,sans-serif; background:#f4f6fa; color:#1d2b46; }
-    body {margin:0;} header {background:#092f83;color:white;padding:18px 24px;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;}
-    header span {font-weight:800;} select {padding:9px;border-radius:8px;border:1px solid #b7c4d7;}
-    main {max-width:860px;margin:24px auto;background:white;border-radius:14px;box-shadow:0 6px 28px #152a4212;overflow:hidden;}
-    .note {background:#fff3da;color:#694609;padding:12px 20px;font-size:14px;}
-    #messages {min-height:350px;max-height:65vh;overflow:auto;display:flex;flex-direction:column;gap:12px;padding:20px;}
-    .msg {border-radius:12px;padding:12px 14px;max-width:80%;white-space:pre-wrap;line-height:1.5;word-break:break-word;}
-    .user {background:#e8efff;align-self:flex-end;} .assistant {background:#f2f3f7;align-self:flex-start;}
-    form {display:flex;padding:16px;gap:10px;border-top:1px solid #e0e5ed;}
-    textarea {flex:1;min-height:48px;resize:vertical;padding:12px;border:1px solid #b7c4d7;border-radius:9px;font:inherit;}
-    button {background:#e77d18;color:white;border:0;border-radius:9px;padding:10px 22px;font:inherit;font-weight:700;cursor:pointer;}
-    button:disabled {opacity:.45;} #error {color:#ad1e38;padding:0 18px 10px;min-height:1.3em;}
+    :root {
+      --brand:#092f83; --brand-2:#1f4fb8; --accent:#e77d18; --bg:#f4f6fa; --card:#fff; --text:#1d2b46;
+      --muted:#5d6b85; --line:#e0e5ed; --user:#e8efff; --bot:#f2f3f7; --warn-bg:#fdecee; --warn:#ad1e38;
+      --law:#e6f4ea; --law-text:#1d6b36; --int:#eef1fb; --int-text:#2a3f8f;
+      color-scheme:light; font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); }
+    header { background:var(--brand); color:#fff; padding:14px 20px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    header .title { font-weight:800; font-size:18px; margin-right:auto; }
+    header .title small { display:block; font-weight:400; font-size:12px; opacity:.8; }
+    header label { font-size:14px; }
+    select, .ghost { padding:8px 10px; border-radius:8px; border:1px solid #b7c4d7; font:inherit; font-size:14px; }
+    .ghost { background:transparent; color:#fff; border-color:#ffffff80; cursor:pointer; }
+    .ghost:hover { background:#ffffff1a; }
+    main { max-width:920px; margin:20px auto; background:var(--card); border-radius:14px; box-shadow:0 6px 28px #152a4212; overflow:hidden; }
+    .status { display:flex; gap:8px; flex-wrap:wrap; padding:10px 18px; border-bottom:1px solid var(--line); font-size:12px; color:var(--muted); }
+    .pill { padding:3px 9px; border-radius:20px; background:#eef1f6; }
+    .pill.ok { background:var(--law); color:var(--law-text); } .pill.bad { background:var(--warn-bg); color:var(--warn); }
+    #messages { min-height:380px; max-height:64vh; overflow:auto; display:flex; flex-direction:column; gap:14px; padding:20px; }
+    .empty { color:var(--muted); text-align:center; margin:auto; max-width:520px; line-height:1.5; }
+    .examples { display:flex; flex-direction:column; gap:8px; margin-top:14px; }
+    .examples button { background:#f5f7fb; color:var(--brand); border:1px solid var(--line); text-align:left; font-weight:500; padding:9px 12px; }
+    .examples button:hover { background:var(--user); }
+    .msg { border-radius:12px; padding:12px 14px; max-width:86%; white-space:pre-wrap; line-height:1.55; word-break:break-word; }
+    .user { background:var(--user); align-self:flex-end; }
+    .assistant { background:var(--bot); align-self:flex-start; }
+    .assistant.insufficient { border-left:3px solid var(--accent); }
+    .meta { margin-top:6px; font-size:12px; color:var(--muted); }
+    details.sources { margin-top:10px; white-space:normal; }
+    details.sources summary { cursor:pointer; font-size:13px; font-weight:600; color:var(--brand-2); }
+    .src { background:#fff; border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin-top:8px; }
+    .src-head { display:flex; gap:6px; align-items:center; flex-wrap:wrap; font-size:13px; }
+    .src-title { font-weight:600; }
+    .tag { font-size:11px; padding:2px 7px; border-radius:10px; }
+    .tag.law { background:var(--law); color:var(--law-text); } .tag.internal { background:var(--int); color:var(--int-text); }
+    .tag.old { background:var(--warn-bg); color:var(--warn); }
+    .src-status { font-size:12px; color:var(--muted); margin-top:4px; }
+    .src-text { font-size:13px; margin-top:6px; color:#33405c; max-height:7.5em; overflow:hidden; position:relative; }
+    .src button { margin-top:6px; background:none; color:var(--brand-2); padding:0; font-size:13px; font-weight:600; }
+    form { display:flex; padding:14px; gap:10px; border-top:1px solid var(--line); }
+    textarea { flex:1; min-height:52px; max-height:200px; resize:vertical; padding:12px; border:1px solid #b7c4d7; border-radius:9px; font:inherit; }
+    button { background:var(--accent); color:#fff; border:0; border-radius:9px; padding:10px 22px; font:inherit; font-weight:700; cursor:pointer; }
+    button:disabled { opacity:.45; cursor:default; }
+    #error { color:var(--warn); padding:0 18px 10px; min-height:1.3em; font-size:14px; }
+    .typing { color:var(--muted); font-style:italic; }
+    dialog { width:min(860px,94vw); max-height:86vh; border:0; border-radius:14px; padding:0; box-shadow:0 20px 60px #0004; }
+    dialog::backdrop { background:#0b1a3a80; }
+    .dlg-head { position:sticky; top:0; background:var(--card); padding:14px 18px; border-bottom:1px solid var(--line); display:flex; gap:10px; align-items:flex-start; }
+    .dlg-head h2 { font-size:16px; margin:0; flex:1; }
+    .dlg-head button { background:#eef1f6; color:var(--text); padding:6px 12px; }
+    #doc-status { font-size:13px; color:var(--muted); padding:8px 18px 0; }
+    #doc-text { white-space:pre-wrap; font-size:14px; line-height:1.55; padding:12px 18px 20px; margin:0; font-family:inherit; }
+    mark { background:#fff1c2; }
+    @media (max-width:600px) { main { margin:0; border-radius:0; } .msg { max-width:96%; } header .title { font-size:16px; } }
   </style>
 </head>
 <body>
-<header><span>ПСБ | Юридический ассистент — тест модуля 1</span>
-<label for="user">Пользователь: <select id="user"><option value="user1">Пользователь 1</option><option value="user2">Пользователь 2</option><option value="user3">Пользователь 3</option></select></label></header>
+<header>
+  <div class="title">ПСБ | Юридический ассистент<small>Ответы только по базе знаний, со ссылками на документы и пункты</small></div>
+  <label for="user">Пользователь:
+    <select id="user"><option value="user1">Пользователь 1</option><option value="user2">Пользователь 2</option><option value="user3">Пользователь 3</option></select>
+  </label>
+  <button class="ghost" id="reset" type="button">Новый диалог</button>
+</header>
 <main>
-  <div class="note">Тестовый режим: вопросы и история сохраняются, но юридические ответы пока не генерируются.</div>
+  <div class="status" id="status"><span class="pill">Загрузка…</span></div>
   <div id="messages" aria-live="polite"></div>
-  <form id="chat-form"><textarea id="question" placeholder="Введите вопрос..." required></textarea><button id="send" type="submit">Отправить</button></form>
+  <form id="chat-form">
+    <textarea id="question" placeholder="Например: какой срок оплаты по договору П-17/2024?" required></textarea>
+    <button id="send" type="submit">Отправить</button>
+  </form>
   <div id="error" role="alert"></div>
 </main>
+
+<dialog id="doc">
+  <div class="dlg-head"><h2 id="doc-title"></h2><button type="button" id="doc-close">Закрыть</button></div>
+  <div id="doc-status"></div>
+  <pre id="doc-text"></pre>
+</dialog>
+
 <script>
-const userSelect=document.getElementById('user'), box=document.getElementById('messages');
-const form=document.getElementById('chat-form'), question=document.getElementById('question');
-const send=document.getElementById('send'), error=document.getElementById('error');
-let messages=[], busy=false;
-function addMessage(role,content){const el=document.createElement('div');el.className='msg '+role;el.textContent=content;box.appendChild(el);box.scrollTop=box.scrollHeight;}
-async function readHistory(){
-  const selected=userSelect.value; error.textContent=''; box.replaceChildren();
-  const response=await fetch('/api/history',{headers:{'X-Demo-User':selected}});
-  if(!response.ok) throw Error('Ошибка загрузки истории');
-  const data=await response.json();
-  if(selected!==userSelect.value) return;
-  messages=data.messages.map(m=>({role:m.role,content:m.content}));
-  data.messages.forEach(m=>addMessage(m.role,m.content));
+const $ = id => document.getElementById(id);
+const userSelect = $('user'), box = $('messages'), form = $('chat-form'), question = $('question');
+const send = $('send'), error = $('error'), dlg = $('doc');
+const EXAMPLES = [
+  'Нужно ли согласование финансового директора для договора на 12 млн рублей?',
+  'Какой срок оплаты и размер неустойки по договору с ООО «Альфа-Трейд»?',
+  'Можно ли заключить срочный трудовой договор с испытательным сроком 4 месяца?'
+];
+let messages = [], busy = false;
+
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+function renderEmpty() {
+  const wrap = el('div', 'empty');
+  wrap.append(el('div', null, 'Задайте вопрос о договорах, внутренних регламентах ООО «Меридиан» или статьях законов из базы знаний. Ассистент укажет документ и пункт, а если данных нет — честно скажет об этом.'));
+  const ex = el('div', 'examples');
+  EXAMPLES.forEach(t => { const b = el('button', null, t); b.type = 'button'; b.onclick = () => { question.value = t; question.focus(); }; ex.append(b); });
+  wrap.append(ex);
+  box.replaceChildren(wrap);
 }
-userSelect.addEventListener('change',()=>{readHistory().catch(e=>error.textContent=e.message)});
-form.addEventListener('submit',async e=>{
-  e.preventDefault(); if(busy||!question.value.trim())return;
-  busy=true;send.disabled=true;userSelect.disabled=true;error.textContent='';
-  const text=question.value; const history=messages.map(({role,content})=>({role,content}));
-  try{
-    const response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','X-Demo-User':userSelect.value},body:JSON.stringify({question:text,history})});
-    const data=await response.json();
-    if(!response.ok)throw Error(JSON.stringify(data.detail||'Ошибка сервера'));
-    question.value='';await readHistory();
-  }catch(err){error.textContent=err.message;}
-  finally{busy=false;send.disabled=false;userSelect.disabled=false;question.focus();}
+
+function sourceCard(s) {
+  const card = el('div', 'src');
+  const head = el('div', 'src-head');
+  head.append(el('span', 'tag ' + s.kind, s.kind === 'law' ? 'закон' : 'документ компании'));
+  if (s.outdated) head.append(el('span', 'tag old', 'утратил силу'));
+  head.append(el('span', 'src-title', s.section ? `${s.section} — ${s.document_title}` : s.document_title));
+  card.append(head);
+  if (s.revision_id) card.append(el('div', 'src-status', s.revision_id));
+  card.append(el('div', 'src-text', s.excerpt));
+  const open = el('button', null, 'Открыть документ →'); open.type = 'button';
+  open.onclick = () => openDocument(s.document_id, s.excerpt);
+  card.append(open);
+  return card;
+}
+
+function addMessage(m) {
+  const div = el('div', 'msg ' + m.role + (m.status === 'insufficient' ? ' insufficient' : ''), m.content);
+  if (m.role === 'assistant' && m.sources && m.sources.length) {
+    const det = el('details', 'sources');
+    const docs = new Set(m.sources.map(s => s.document_id)).size;
+    det.append(el('summary', null, `Источники: ${docs} док. (${m.sources.length} фрагм.)`));
+    m.sources.forEach(s => det.append(sourceCard(s)));
+    div.append(det);
+  }
+  if (m.role === 'assistant' && m.seconds != null) div.append(el('div', 'meta', `Ответ за ${m.seconds.toFixed(1)} с`));
+  if (box.querySelector('.empty')) box.replaceChildren();
+  box.appendChild(div); box.scrollTop = box.scrollHeight;
+  return div;
+}
+
+async function openDocument(id, excerpt) {
+  const r = await fetch('/api/documents/' + encodeURIComponent(id));
+  if (!r.ok) { error.textContent = 'Документ не найден'; return; }
+  const d = await r.json();
+  $('doc-title').textContent = d.title;
+  $('doc-status').textContent = (d.kind === 'law' ? 'Закон. ' : 'Документ компании. ') + d.status + ' · файл: ' + d.source_path;
+  const pre = $('doc-text'); pre.replaceChildren();
+  const probe = (excerpt || '').replace(/…$/, '').slice(0, 60).trim();
+  const flat = d.text.replace(/\s+/g, ' ');
+  const at = probe ? flat.indexOf(probe) : -1;
+  if (at >= 0) {
+    const len = Math.min((excerpt || '').length, flat.length - at);
+    pre.append(document.createTextNode(flat.slice(0, at)));
+    const mk = el('mark', null, flat.slice(at, at + len)); pre.append(mk);
+    pre.append(document.createTextNode(flat.slice(at + len)));
+    dlg.showModal(); mk.scrollIntoView({ block: 'center' });
+  } else { pre.textContent = d.text; dlg.showModal(); }
+}
+$('doc-close').onclick = () => dlg.close();
+dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+
+async function readHistory() {
+  const selected = userSelect.value; error.textContent = '';
+  const r = await fetch('/api/history', { headers: { 'X-Demo-User': selected } });
+  if (!r.ok) throw Error('Ошибка загрузки истории');
+  const data = await r.json();
+  if (selected !== userSelect.value) return;
+  messages = data.messages;
+  box.replaceChildren();
+  if (!messages.length) renderEmpty(); else messages.forEach(addMessage);
+}
+
+async function readStatus() {
+  try {
+    const h = await (await fetch('/api/health')).json();
+    const pills = [
+      [`База знаний: ${h.documents} документов`, 'ok'],
+      [h.llm === 'configured' ? `LLM: ${h.model}` : 'LLM не настроена — показываются найденные положения', h.llm === 'configured' ? 'ok' : 'bad'],
+      [{ ready: 'Векторный поиск bge-m3: готов', building: 'Векторный индекс строится, пока BM25', 'bm25-only': 'Поиск: BM25', disabled: 'Поиск: BM25' }[h.vector_index] || h.vector_index, h.vector_index === 'ready' ? 'ok' : ''],
+      [h.reranker === 'on' ? 'Реранкер: включён' : 'Реранкер: выключен', h.reranker === 'on' ? 'ok' : '']
+    ];
+    $('status').replaceChildren(...pills.map(([t, c]) => el('span', 'pill ' + c, t)));
+    if (h.vector_index === 'building') setTimeout(readStatus, 5000);
+  } catch (e) { $('status').replaceChildren(el('span', 'pill bad', 'Сервер недоступен')); }
+}
+
+function setBusy(v) { busy = v; send.disabled = v; userSelect.disabled = v; $('reset').disabled = v; }
+
+userSelect.addEventListener('change', () => readHistory().catch(e => error.textContent = e.message));
+$('reset').addEventListener('click', async () => {
+  if (busy) return;
+  await fetch('/api/history', { method: 'DELETE', headers: { 'X-Demo-User': userSelect.value } });
+  readHistory().catch(e => error.textContent = e.message);
 });
-readHistory().catch(e=>error.textContent=e.message);
+question.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); } });
+
+form.addEventListener('submit', async e => {
+  e.preventDefault(); if (busy || !question.value.trim()) return;
+  setBusy(true); error.textContent = '';
+  const text = question.value;
+  const history = messages.map(({ role, content }) => ({ role, content }));
+  addMessage({ role: 'user', content: text });
+  const typing = addMessage({ role: 'assistant', content: 'Ищу в базе знаний и готовлю ответ…' });
+  typing.classList.add('typing');
+  try {
+    const r = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Demo-User': userSelect.value }, body: JSON.stringify({ question: text, history }) });
+    const data = await r.json();
+    if (!r.ok) throw Error(typeof data.detail === 'string' ? data.detail : 'Ошибка запроса');
+    question.value = '';
+    typing.remove();
+    const answer = { role: 'assistant', content: data.answer, status: data.status, sources: data.sources, seconds: data.seconds };
+    messages.push({ role: 'user', content: text }, answer);
+    addMessage(answer);
+  } catch (err) {
+    typing.remove(); box.lastChild && box.lastChild.classList.contains('user') && box.lastChild.remove();
+    if (!box.children.length) renderEmpty();
+    error.textContent = err.message;
+  } finally { setBusy(false); question.focus(); }
+});
+
+readStatus();
+readHistory().catch(e => error.textContent = e.message);
 </script>
 </body>
 </html>
