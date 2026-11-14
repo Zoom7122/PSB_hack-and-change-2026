@@ -177,6 +177,62 @@ class RunTest(unittest.TestCase):
         self.assertEqual(len(calls), 2)
         self.assertIn("90", calls[1][-1]["content"])
 
+    def assistant(self, answer) -> s.Assistant:
+        kb = s.KnowledgeBase.from_sources(s.read_sources(KB_ZIP))
+        api = s.Api(self.settings(), httpx.MockTransport(FakeProxy(answer)))
+        return s.Assistant(kb, s.Retriever(kb, api, self.settings()), api, self.settings(),
+                           deadline=s.time.monotonic() + 600)
+
+    def test_missing_clause_reference_triggers_repair(self) -> None:
+        calls = []
+
+        def answer(messages):
+            calls.append(messages)
+            if len(messages) == 2:
+                return "АНАЛИЗ: …\nОТВЕТ: Оплата в течение 30 календарных дней (п. 9.7)."
+            return "АНАЛИЗ: исправлено\nОТВЕТ: Оплата в течение 30 календарных дней с даты подписания УПД (п. 4.2)."
+        outcome = self.assistant(answer).answer(s.Question.parse("1", "П-17/2024. В какой срок оплатить товар?"))
+        self.assertEqual(outcome.mode, "llm-repaired")
+        self.assertIn("(п. 4.2)", outcome.answer)
+        self.assertIn("п. 9.7", calls[1][-1]["content"])
+
+    def test_repair_that_does_not_help_is_discarded(self) -> None:
+        def answer(messages):
+            if len(messages) == 2:
+                return "ОТВЕТ: Оплата в течение 30 календарных дней (п. 9.7)."
+            return "ОТВЕТ: Оплата через 30 дней, см. п. 9.8."
+        outcome = self.assistant(answer).answer(s.Question.parse("1", "П-17/2024. В какой срок оплатить товар?"))
+        self.assertEqual(outcome.mode, "llm")
+        self.assertIn("п. 9.7", outcome.answer)
+
+    def test_analysis_without_answer_part_is_completed(self) -> None:
+        calls = []
+
+        def answer(messages):
+            calls.append(messages)
+            if len(messages) == 2:
+                return "АНАЛИЗ: договор П-17/2024, пункт 4.2, предпосылка верна"
+            return "ОТВЕТ: Оплата в течение 30 календарных дней с даты подписания УПД (п. 4.2)."
+        outcome = self.assistant(answer).answer(s.Question.parse("1", "П-17/2024. В какой срок оплатить товар?"))
+        self.assertEqual(outcome.answer, "Оплата в течение 30 календарных дней с даты подписания УПД (п. 4.2).")
+        self.assertIn("no-answer-part", outcome.issues)
+        self.assertEqual(len(calls), 2)
+
+    def test_truncated_answer_is_retried_with_larger_token_limit(self) -> None:
+        budgets = []
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            payload = json.loads(request.content)
+            budgets.append(payload["max_tokens"])
+            if len(budgets) == 1:
+                return httpx.Response(200, json={"choices": [{"message": {"content": "АНАЛИЗ: начал"},
+                                                              "finish_reason": "length"}]})
+            return httpx.Response(200, json={"choices": [{"message": {"content": "ОТВЕТ: Да."},
+                                                          "finish_reason": "stop"}]})
+        api = s.Api(self.settings(), httpx.MockTransport(handler))
+        self.assertEqual(api.chat([{"role": "user", "content": "x"}]), "ОТВЕТ: Да.")
+        self.assertGreater(budgets[1], budgets[0])
+
 
 class KnowledgeBaseTest(unittest.TestCase):
     @classmethod
@@ -208,6 +264,22 @@ class KnowledgeBaseTest(unittest.TestCase):
         self.assertTrue(trade[0].startswith("Договор поставки П-17-2024"))
         self.assertIn("Доп соглашение 1 к договору П-17-2024", trade)
         self.assertFalse(any("ПТ-05" in n for n in trade))
+
+    def test_abbreviation_finds_law_written_in_full(self) -> None:
+        docs = self.context_docs("Какой МРОТ установлен?")
+        self.assertTrue(docs[0].startswith("МРОТ"), docs)
+
+    def test_contract_question_does_not_pull_unrelated_laws(self) -> None:
+        docs = self.context_docs("П-17/2024. Доставка и упаковка уже включены в цену?")
+        self.assertFalse(any(self.doc(n).kind == "law" for n in docs), docs)
+
+    def test_citation_check(self) -> None:
+        context = "3.1. Арендная плата составляет 450 000 рублей.\nСтатья 70. Испытание при приеме на работу\n" \
+                  "в случаях, указанных в статьях 6, 10 и 11 настоящего закона"
+        ok = "Плата — 450 000 рублей (п. 3.1). Источник: ТК РФ, ст. 70. Статьи 6, 10 и 11 в базе отсутствуют."
+        self.assertEqual(s.ungrounded(ok, context), [])
+        self.assertEqual(s.ungrounded_citations("См. п. 9.7 и ст. 614 ГК РФ.", context), ["п. 9.7", "ст. 614"])
+        self.assertEqual(s.ungrounded_citations("По договору № Б-99/2021 всё иначе.", context), ["Б-99/2021"])
 
     def test_inflected_counterparty_name(self) -> None:
         docs = self.context_docs("По договору с «Северным Складом» нас должны пропускать ночью?")
