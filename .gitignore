@@ -8,3 +8,5 @@ dist/
 submission.verified.csv
 *.sqlite3
 answer_trace.jsonl
+.playwright-mcp
+.work
