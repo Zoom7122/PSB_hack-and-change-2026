@@ -1,0 +1,4 @@
+# В production публикуется только frontend из compose.yaml.
+services:
+  backend:
+    restart: unless-stopped

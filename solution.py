@@ -1,8 +1,5 @@
-"""Точка входа платформенного CSV-запуска решения."""
-
-from API.for_solutions import main
-import sys
-
+"""Точка входа общего пакетного конвейера для платформы."""
+from API.batch import main
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()

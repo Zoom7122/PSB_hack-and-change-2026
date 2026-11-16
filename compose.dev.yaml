@@ -1,0 +1,11 @@
+services:
+  backend:
+    ports:
+      - "${BACKEND_BIND:-127.0.0.1}:${BACKEND_PORT:-8001}:8000"
+  dozzle:
+    image: amir20/dozzle:v11.4.3
+    ports:
+      - "${DOZZLE_BIND:-127.0.0.1}:${DOZZLE_PORT:-9999}:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: unless-stopped

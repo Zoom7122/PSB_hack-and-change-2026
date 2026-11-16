@@ -9,8 +9,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "dist/psb_hack_change_submission.zip"
-ENTRY_MODULES = ("solution", "answer_generation.verify")
-PACKAGES = ("API", "answer_generation", "data_processing", "query_processing_module", "rag_pipeline")
+ENTRY_MODULES = ("solution",)
+PACKAGES = ("API", "answer_generation", "data_processing", "query_processing_module", "rag_pipeline", "platform_solution")
 REQUIREMENTS = (
     "httpx==0.28.1", "numpy==2.2.6", "openai==3.45.0",
     "pydantic==2.14.2", "python-dotenv==1.1.1", "rank-bm25==0.2.2",
@@ -157,11 +157,6 @@ def build_archive(output: Path = OUTPUT) -> Path:
     modules = discover_modules()
     files = {name + ".py": _rewrite_source(module, modules) for module, name in modules.items()}
     files["requirements.txt"] = "\n".join(REQUIREMENTS) + "\n"
-    files["verify_submission.py"] = (
-        '"""Recheck saved answers using the same verifier as solution.py."""\n'
-        "from _psb_answer_generation_verify import main\n\n"
-        'if __name__ == "__main__":\n    main()\n'
-    )
     output.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(output, "w") as archive:
         for name, content in sorted(files.items()):

@@ -1264,7 +1264,10 @@ class Assistant:
                 issues.append(f"repair-failed:{exc}"[:200])
         if not answer:
             return Outcome(question.qid, self._extractive(question, retrieval), "extractive-empty", docs, issues)
-        return Outcome(question.qid, fit_length(answer), mode, docs, issues)
+        answer = fit_length(answer)
+        LOG.info("LLM ответ qid=%s model=%s mode=%s: %s",
+                 question.qid, self.settings.llm_model, mode, answer)
+        return Outcome(question.qid, answer, mode, docs, issues)
 
     def _extractive(self, question: Question, retrieval: Retrieval | None = None) -> str:
         """Запасной ответ без LLM: наиболее релевантное положение с указанием документа."""

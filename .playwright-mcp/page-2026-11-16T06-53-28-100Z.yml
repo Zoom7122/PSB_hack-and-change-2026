@@ -1,0 +1,50 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]: п
+      - generic [ref=e6]:
+        - generic [ref=e7]: ПравоКонтур
+        - generic [ref=e8]: Юридический помощник
+    - button "＋ Новый диалог" [ref=e9] [cursor=pointer]:
+      - generic [ref=e10]: ＋
+      - text: Новый диалог
+    - generic [ref=e11]:
+      - generic [ref=e12]: Рабочее пространство
+      - generic [ref=e13]:
+        - generic [ref=e14]: ◈ Юридический ассистент
+        - paragraph [ref=e15]: Вопросы по договорам, регламентам и законодательству.
+    - generic [ref=e16]:
+      - generic [ref=e17]: Профиль
+      - combobox "Профиль" [ref=e18]:
+        - option "Пользователь 1" [selected]
+        - option "Пользователь 2"
+        - option "Пользователь 3"
+      - generic [ref=e19]: Демонстрационная версияИстория сохраняется для каждого профиля.
+  - main [ref=e20]:
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - generic [ref=e23]: Юридический ассистент
+        - generic [ref=e24]: Ответы с опорой на документы базы знаний
+      - generic [ref=e25]: Сервис доступен
+    - generic [ref=e29]:
+      - generic [ref=e30]:
+        - generic [ref=e31]: База знаний · 21 документов
+        - generic [ref=e32]: Модель настроена
+        - generic [ref=e33]: Текстовый поиск
+        - generic [ref=e34]: Реранкер включён
+      - generic [ref=e35]:
+        - generic [ref=e36]: Подписали новый договор, оригинал пока у меня. Не знаю, кому его дальше передавать.
+        - generic [ref=e39]:
+          - generic [ref=e40]: п
+          - generic [ref=e41]:
+            - generic [ref=e42]: "Подписанный оригинал договора нужно передать в юридический отдел для хранения в течение 3 (трёх) рабочих дней с даты подписания. Источник: Регламент согласования договоров в редакции от 01.03.2025, п. 3.2."
+            - group [ref=e43]:
+              - 'generic "Источники: 4 док. · 7 фрагм." [ref=e44] [cursor=pointer]'
+      - generic [ref=e46]:
+        - generic [ref=e47]:
+          - textbox "Ваш вопрос" [ref=e48]:
+            - /placeholder: Задайте вопрос по документам…
+          - button "Отправить" [ref=e49] [cursor=pointer]: Отправить ↗
+        - generic [ref=e50]:
+          - generic [ref=e51]: Ответы формируются на основе базы знаний. Проверяйте важные сведения.
+          - generic [ref=e52]: Enter — отправить · Shift + Enter — новая строка

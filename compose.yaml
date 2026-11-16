@@ -1,15 +1,29 @@
 services:
-  web:
+  backend:
     build: .
-    image: psb-legal-assistant
-    ports:
-      - "8000:8000"
+    image: psb-legal-assistant-backend:local
     env_file:
       - path: .env
         required: false
+    environment:
+      DATA_DIR: /app/data
+      ARTIFACTS_DIR: /app/var/artifacts
+      PSB_HISTORY_DB: /app/var/history.sqlite3
     volumes:
-      - history:/app/var
+      - assistant-data:/app/var
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: deploy/frontend.Dockerfile
+    image: psb-legal-assistant-frontend:local
+    ports:
+      - "${FRONTEND_BIND:-0.0.0.0}:${FRONTEND_PORT:-8000}:8080"
+    depends_on:
+      backend:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:
-  history:
+  assistant-data:

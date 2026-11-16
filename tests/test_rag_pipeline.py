@@ -27,6 +27,7 @@ from query_processing_module.query_processing.multi_stage import (
     CLASSIFICATION_PROMPT, CONTEXT_PROMPT, SEARCH_PROMPT,
 )
 from query_processing_module.query_processing.prompts import SYSTEM_PROMPT
+from platform_solution.solution import SYSTEM_PROMPT as PLATFORM_PROMPT
 from answer_generation.service import GENERATION_PROMPT
 from answer_generation.verification import VERIFY_PROMPT
 from rag_pipeline.corpus import Corpus
@@ -396,8 +397,10 @@ class MockPlatformHandler(EmbeddingHandler):
             return super().do_POST()
         payload = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
         prompt = payload["messages"][0]["content"]
-        data = json.loads(payload["messages"][1]["content"])
-        if prompt == SYSTEM_PROMPT:
+        data = {} if prompt.startswith(PLATFORM_PROMPT) else json.loads(payload["messages"][1]["content"])
+        if prompt.startswith(PLATFORM_PROMPT):
+            result = "ОТВЕТ: Оплата через 10 дней (п. 1.1)."
+        elif prompt == SYSTEM_PROMPT:
             result = ready_response()
         elif prompt == GENERATION_PROMPT:
             source = next(item for item in data["sources"] if "10 дней" in item["text"])
@@ -408,7 +411,7 @@ class MockPlatformHandler(EmbeddingHandler):
             raise AssertionError("Неизвестный промпт")
         body = {"id": "chatcmpl-test", "object": "chat.completion", "created": 1,
                 "model": "mock", "choices": [{"index": 0, "finish_reason": "stop",
-                "message": {"role": "assistant", "content": json.dumps(result, ensure_ascii=False)}}]}
+                "message": {"role": "assistant", "content": result if isinstance(result, str) else json.dumps(result, ensure_ascii=False)}}]}
         encoded = json.dumps(body, ensure_ascii=False).encode()
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
@@ -507,9 +510,10 @@ class IndexCommandTests(unittest.TestCase):
                            check=True, capture_output=True, text=True, timeout=30)
             with (root / "submission.csv").open(encoding="utf-8", newline="") as source:
                 rows = list(csv.DictReader(source))
-            trace = json.loads((root / "artifacts" / "answer_trace.jsonl").read_text(encoding="utf-8"))
-            self.assertIn("Договор поставки № П-17/2024, п. 1.1", rows[0]["answer"])
-            self.assertEqual(trace["verification"]["status"], "passed")
+            trace = json.loads((root / "answer_trace.jsonl").read_text(encoding="utf-8"))
+            self.assertIn("10 дней", rows[0]["answer"])
+            self.assertIn("п. 1.1", rows[0]["answer"])
+            self.assertEqual(trace["mode"], "llm")
 
 
 if __name__ == "__main__":
